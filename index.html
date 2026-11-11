@@ -7,51 +7,58 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
-  :root { --bg:#1A1A1A; --card:#262626; --yel:#FFC31D; --cyan:#00B7EF; --mag:#ED0680; --grn:#AEEA00; --muted:#BDBDBD; }
+  :root { --bg:#F5F5F5; --card:#FFFFFF; --ink:#1A1A1A; --line:#E4E4E4; --yel:#FFC31D; --cyan:#00B7EF; --mag:#ED0680; --grn:#AEEA00; --muted:#7A7A7A; }
   * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:#fff; font-family:"Prompt",-apple-system,"Sukhumvit Set","Noto Sans Thai",sans-serif; font-size:14px; }
-  .wrap { max-width:480px; margin:0 auto; padding:18px 16px 40px; }
-  .brand { font-size:11px; font-weight:600; letter-spacing:.6px; }
-  h1 { font-size:26px; margin:4px 0 2px; font-weight:600; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Prompt",-apple-system,"Sukhumvit Set","Noto Sans Thai",sans-serif; font-size:14px; }
+  .top { background:var(--ink); color:#fff; padding:12px 16px 10px; border-bottom:3px solid var(--yel); }
+  .top .in { max-width:480px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; }
+  .brand { font-size:12px; font-weight:700; letter-spacing:.4px; } .brand i { font-style:normal; color:var(--yel); }
+  .wrap { max-width:480px; margin:0 auto; padding:16px 16px 40px; }
+  h1 { font-size:24px; margin:4px 0 2px; font-weight:700; color:var(--ink); }
   .who { color:var(--muted); font-size:12px; }
-  label { display:block; color:var(--muted); font-size:12px; margin:14px 0 5px; }
-  label .req { color:var(--yel); }
-  input, select, textarea { width:100%; background:#fff; color:#1A1A1A; border:1px solid #fff; border-radius:9px; padding:10px; font-size:15px; font-family:inherit; }
-  select option { background:#fff; color:#1A1A1A; }
-  input:focus, select:focus, textarea:focus { outline:2px solid var(--yel); }
-  input:disabled { background:#999; }
-  .pf { display:flex; align-items:center; background:#fff; border-radius:9px; }
-  .pf span { padding-left:10px; color:#1A1A1A; font-weight:600; white-space:nowrap; }
-  .pf input { border:0; }
+  label { display:block; color:#444; font-size:12.5px; font-weight:500; margin:14px 0 6px; }
+  label .req { color:var(--mag); }
+  input, select, textarea { width:100%; background:#fff; color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:11px 12px; font-size:15px; font-family:inherit; }
+  input::placeholder, textarea::placeholder { color:#B0B0B0; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--ink); box-shadow:0 0 0 3px rgba(255,195,29,.35); }
+  input:disabled { background:#F0F0F0; color:#999; }
+  .pf { display:flex; align-items:center; background:#fff; border:1px solid var(--line); border-radius:10px; }
+  .pf:focus-within { border-color:var(--ink); box-shadow:0 0 0 3px rgba(255,195,29,.35); }
+  .pf span { padding-left:12px; color:var(--muted); font-weight:600; white-space:nowrap; }
+  .pf input { border:0; box-shadow:none !important; }
   .seg { display:flex; gap:6px; }
-  .seg button { flex:1; padding:10px 4px; border-radius:9px; border:1px solid #555; background:transparent; color:#fff; font-size:13px; font-family:inherit; }
-  .seg button.on { background:var(--yel); color:#1A1A1A; border-color:var(--yel); font-weight:600; }
-  .types { display:flex; flex-direction:column; gap:12px; margin-top:16px; }
-  .types button { text-align:left; padding:18px 16px; border-radius:14px; border:0; font-family:inherit; font-size:18px; font-weight:600; color:#1A1A1A; }
-  .types small { display:block; font-size:13px; font-weight:400; margin-top:4px; opacity:.75; }
+  .seg button { flex:1; padding:10px 4px; border-radius:10px; border:1px solid var(--line); background:#fff; color:var(--ink); font-size:13px; font-family:inherit; }
+  .seg button.on { background:var(--ink); color:#fff; border-color:var(--ink); font-weight:600; }
+  .seg button.on.urg { background:var(--mag); border-color:var(--mag); }
+  .types { display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+  .types button { text-align:left; padding:16px; border-radius:14px; border:1px solid var(--line); background:#fff; font-family:inherit; font-size:17px; font-weight:600; color:var(--ink); border-left:6px solid var(--ink); }
+  .types small { display:block; font-size:12.5px; font-weight:400; margin-top:3px; color:var(--muted); }
   .row { display:flex; gap:8px; } .row > * { flex:1; min-width:0; }
-  .item { background:var(--card); border-radius:12px; padding:10px; margin-top:8px; }
+  .item { background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px; margin-top:8px; }
   .item-h { display:flex; justify-content:space-between; color:var(--muted); font-size:12px; margin-bottom:6px; }
   .item-h button { background:none; border:0; color:var(--mag); font-family:inherit; font-size:12px; }
-  .add { width:100%; margin-top:8px; padding:10px; border:1px dashed #777; border-radius:9px; background:none; color:#ddd; font-family:inherit; font-size:14px; }
-  .hint { margin-top:6px; font-size:12px; color:var(--cyan); }
+  .add { width:100%; margin-top:8px; padding:11px; border:1px dashed #BDBDBD; border-radius:10px; background:#fff; color:#444; font-family:inherit; font-size:14px; }
+  .hint { margin-top:6px; font-size:12px; color:#0089B3; }
   .err { margin-top:5px; font-size:12px; color:var(--mag); }
-  .chk { display:flex; gap:8px; align-items:center; color:#ddd; margin-top:8px; font-size:13px; }
+  .chk { display:flex; gap:8px; align-items:center; color:#444; margin-top:8px; font-size:13px; font-weight:400; }
   .chk input { width:auto; }
-  .submit { width:100%; margin-top:18px; padding:14px; border:0; border-radius:11px; color:#1A1A1A; font-size:16px; font-weight:600; font-family:inherit; }
+  .submit { width:100%; margin-top:20px; padding:15px; border:0; border-radius:12px; background:var(--ink); color:#fff; font-size:16px; font-weight:600; font-family:inherit; box-shadow:inset 0 -3px 0 var(--yel); }
   .submit:disabled { opacity:.6; }
-  .back { background:none; border:0; color:var(--muted); font-family:inherit; font-size:13px; padding:0; margin-top:6px; }
-  .po-card { background:var(--card); border-radius:14px; padding:12px; margin-top:10px; border-left:4px solid var(--yel); }
-  .po-card .seg button { padding:8px 4px; font-size:12px; }
-  .po-h { display:flex; justify-content:space-between; align-items:center; font-weight:600; color:var(--yel); }
+  .back { background:none; border:0; color:var(--muted); font-family:inherit; font-size:13px; padding:0; margin-top:2px; }
+  .po-card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 12px 14px; margin-top:10px; border-top:4px solid var(--yel); }
+  .po-card .seg button { padding:8px 4px; font-size:12.5px; }
+  .po-h { display:flex; justify-content:space-between; align-items:center; font-weight:700; }
   .po-h button { background:none; border:0; color:var(--mag); font-family:inherit; font-size:12px; }
   .po-card label { margin-top:10px; }
+  .sum { display:flex; justify-content:space-between; align-items:center; background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-top:10px; font-size:13px; }
+  .sum b { font-size:18px; }
+  .sugg { font-size:11.5px; color:var(--muted); margin-top:4px; }
   .center { text-align:center; padding-top:40px; }
   .hidden { display:none; }
   /* ===== หน้ารายงาน (โทนสว่าง สี CI) ===== */
   body.light { background:#F4F4F4; color:#1A1A1A; }
   body.light .wrap { padding:0 0 40px; max-width:760px; }
-  body.light > .wrap > .brand, body.light #demoBadge { display:none !important; }
+  body.light #topBar, body.light #demoBadge { display:none !important; }
   .rp-head { background:#1A1A1A; color:#fff; padding:18px 16px 16px; border-bottom:4px solid var(--yel); }
   .rp-head .logo { font-weight:700; font-size:20px; letter-spacing:-.3px; line-height:1; }
   .rp-head .logo i { font-style:normal; color:var(--yel); }
@@ -92,28 +99,29 @@
 </style>
 </head>
 <body>
+<div class="top" id="topBar"><div class="in"><div class="brand">AWESOME<i>.</i>SCREEN · PR / PO</div>
+  <div id="demoBadge" class="hidden" style="font-size:10.5px;color:#1A1A1A;background:var(--grn);padding:2px 8px;border-radius:6px">ทดลอง · ไม่บันทึกจริง</div></div></div>
 <div class="wrap">
-  <div class="brand">AWESOME.SCREEN · PR / PO</div>
-  <div id="demoBadge" class="hidden" style="margin-top:6px;font-size:11px;color:#1A1A1A;background:var(--grn);padding:2px 8px;border-radius:6px">โหมดทดลอง · ไม่ได้ส่งข้อมูลจริง</div>
 
-  <div id="vLoading" class="center"><h1 style="color:var(--yel)">กำลังโหลด…</h1></div>
+  <div id="vLoading" class="center"><h1>กำลังโหลด…</h1></div>
 
   <div id="vRegister" class="hidden">
-    <h1 style="color:var(--yel)">ลงทะเบียน</h1>
+    <h1>ลงทะเบียน</h1>
     <div class="who">ทำครั้งเดียว เพื่อผูกบัญชีไลน์กับชื่อของคุณ<br>ใช้อีเมลบริษัท + รหัส 6 หลักที่ได้จากผู้ดูแลระบบ</div>
     <label>อีเมลบริษัทของคุณ <span class="req">*</span></label><input id="regEmail" type="email" autocomplete="email" placeholder="name@awesomescreenth.com">
     <label>รหัสลงทะเบียน <span class="req">*</span></label><input id="regCode" inputmode="numeric" maxlength="6" placeholder="6 หลัก">
     <div id="regErr" class="err"></div>
-    <button class="submit" style="background:var(--yel)" id="regBtn" onclick="register()">ลงทะเบียน</button>
+    <button class="submit" id="regBtn" onclick="register()">ลงทะเบียน</button>
   </div>
 
   <div id="vType" class="hidden">
-    <h1>เลือกประเภทคำขอ</h1>
+    <h1>ต้องการทำอะไร</h1>
     <div class="who" id="whoT"></div>
     <div class="types">
-      <button id="btPR" style="background:#fff" onclick="openPR()">เปิดคำขอซื้อ (PR)<small>ยังไม่มีเลข PO · ส่งให้จัดซื้อเปิด PO</small></button>
-      <button id="btPO" style="background:var(--yel)" onclick="openPO()">คำขออนุมัติ PO<small>เปิด PO ใน FlowAccount แล้ว · ส่งให้ผู้อนุมัติ</small></button>
-      <button id="btRP" class="hidden" style="background:var(--cyan)" onclick="openReport()">รายงานจัดซื้อ<small>สรุป PO รออนุมัติ รอจ่าย และ PR ค้าง</small></button>
+      <button id="btPR" onclick="openPR()">ขอซื้อ (PR)<small>สั่งงานจัดซื้อ: สั่งของ หรือให้ช่วยหาของ · ไม่ต้องอนุมัติ</small></button>
+      <button id="btPO" style="border-left-color:var(--yel)" onclick="openPO()">ขออนุมัติ PO<small>เปิด PO ใน FlowAccount แล้ว · ส่งได้ครั้งละหลายใบ</small></button>
+      <button id="btMY" style="border-left-color:var(--grn)" onclick="openMine()">งานของฉัน<small>รอฉันทำ หรือที่ฉันส่งไปแล้วยังไม่จบ</small></button>
+      <button id="btRP" class="hidden" style="border-left-color:var(--cyan)" onclick="openReport()">รายงานจัดซื้อ<small>รออนุมัติ · รอจ่าย · PR ค้าง</small></button>
     </div>
     <div id="typeErr" class="err"></div>
   </div>
@@ -124,6 +132,12 @@
     <h1 id="fTitle"></h1>
     <div class="who" id="who"></div>
 
+    <div id="prTypeBox" class="hidden">
+      <label>ประเภทงาน</label>
+      <div class="seg"><button id="tSpec" onclick="setPrType('spec')">สั่งของตามออเดอร์</button><button id="tSrc" onclick="setPrType('sourcing')">ให้จัดซื้อช่วยหาของ</button></div>
+      <div class="sugg" id="prTypeHint"></div>
+    </div>
+
     <div id="commonFields">
     <label>สั่งซื้อเพื่อ <span class="req">*</span></label>
     <div class="seg"><button id="pOff" onclick="setPurpose('office')">งานสำนักงาน</button><button id="pOrd" onclick="setPurpose('order')">งานออร์เดอร์ลูกค้า</button></div>
@@ -131,6 +145,7 @@
     <div id="secOffice" class="hidden">
       <label>โปรเจ็ค (แผนก | Desc Key ตามกรอบงบ) <span class="req">*</span></label>
       <div class="row"><select id="dept" onchange="fillKeys(); preview()"></select><select id="descKey" onchange="preview()"></select></div>
+      <input id="descCustom" class="hidden" style="margin-top:8px" placeholder="พิมพ์ Desc Key เอง เช่น ค่าซ่อมแอร์ห้องตัวอย่าง" oninput="preview()">
       <label>รายละเอียด</label><input id="officeDetail" placeholder="เช่น ของแจกงานอีเวนต์ (ไม่บังคับ)">
     </div>
     <div id="secOrder" class="hidden">
@@ -148,25 +163,37 @@
     </div>
 
     <div id="prPart" class="hidden">
+      <div id="specPart">
       <label>รายการที่ต้องการ <span class="req">*</span></label>
       <div id="items"></div>
       <button class="add" onclick="addItem()">+ เพิ่มรายการ</button>
+      </div>
+      <div id="srcPart" class="hidden">
+        <label>ปัญหา / ความต้องการ <span class="req">*</span></label>
+        <textarea id="need" rows="4" maxlength="500" oninput="clearErr()" placeholder="เล่าว่าเกิดอะไร อยากให้ได้ผลแบบไหน เช่น&#10;• ห้องตัวอย่างร้อนมาก แอร์ตัวเดิมเสียบ่อย อยากได้ทางแก้ระยะยาว&#10;• ต้องแพ็กเสื้อวันละ 300 ตัว อยากได้ถุงที่ปิดเร็วกว่านี้"></textarea>
+        <label>งบประมาณคร่าว ๆ (บาท)</label><input id="budget" type="number" inputmode="decimal" placeholder="ไม่บังคับ · ไม่รู้ปล่อยว่าง">
+        <div class="sugg">มีรูปหรือตัวอย่าง ส่งในกลุ่มต่อจากการ์ดได้เลย · จัดซื้อจะหาทางเลือกพร้อมราคามาให้เลือกในกลุ่ม</div>
+      </div>
+      <label>ความเร่งด่วน</label>
+      <div class="seg"><button id="uN" onclick="setUrg('normal')">ปกติ</button><button id="uU" onclick="setUrg('urgent')">ด่วนมาก</button></div>
       <label>ต้องการภายในวันที่ <span class="req">*</span></label><input id="needBy" type="date" oninput="clearErr()">
-      <label>ส่งให้ใครเปิด PO <span class="req">*</span></label><select id="assignee" onchange="clearErr()"></select>
+      <label>ให้ใครเปิด PO</label><select id="assignee" onchange="clearErr()"></select>
+      <div class="sugg">ไม่เลือก = จัดซื้อคนไหนก็ได้กดรับเรื่อง</div>
     </div>
 
     <div id="poPart" class="hidden">
       <div id="poRows"></div>
-      <button class="add" onclick="addPO()">+ เพิ่ม PO (ผู้อนุมัติคนเดียวกัน)</button>
-      <div class="hint" id="poSum"></div>
-      <label>ส่งให้ใครอนุมัติ <span class="req">*</span></label><select id="approver" onchange="clearErr()"></select>
+      <button class="add" onclick="addPO()">+ เพิ่ม PO (คนละผู้อนุมัติได้)</button>
+      <div class="sum" style="display:block"><div id="poSum"></div><div id="poGroups" style="margin-top:6px"></div></div>
+
     </div>
 
     <label>หมายเหตุ</label>
-    <textarea id="note" rows="2" placeholder="เช่น ยอดทำจ่าย 7,431 หยวน เรท 5.25 / แนบรูปในกลุ่มแยก"></textarea>
+    <textarea id="note" rows="2" placeholder="เช่น มัดจำ 50% · ยอด 7,431 หยวน เรท 5.25 · ตัดบัตรเครดิต"></textarea>
 
     <div id="formErr" class="err"></div>
     <button class="submit" id="submitBtn" onclick="submitForm()"></button>
+    <button class="submit hidden" id="cancelPOBtn" style="background:#fff;color:var(--mag);border:1px solid var(--mag);box-shadow:none;margin-top:10px" onclick="cancelPO()">ยกเลิกใบนี้ (ไม่ส่งใหม่)</button>
   </div>
 
   <div id="vReport" class="hidden">
@@ -180,31 +207,39 @@
     <div class="rp-body" id="rpBody"><div class="empty">กำลังโหลด…</div></div>
   </div>
 
+  <div id="vMine" class="hidden">
+    <button class="back" onclick="show('vType')">‹ กลับ</button>
+    <h1>งานของฉัน</h1>
+    <div class="who" id="mineWho"></div>
+    <div id="mineList" style="margin-top:14px"></div>
+  </div>
+
   <div id="vDone" class="hidden center">
-    <h1 style="color:var(--grn)">ส่งแล้ว</h1>
+    <div style="width:64px;height:64px;border-radius:50%;background:var(--grn);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:32px">✓</div><h1>ส่งแล้ว</h1>
     <div id="doneMsg" class="who" style="font-size:14px;line-height:1.7"></div>
   </div>
 </div>
 
 <script>
 /* ===================== ตั้งค่า ===================== */
-const LIFF_ID = '2012522127-HjWCQr9H';
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzo_6lMCSw3YDZ1PneyneBStbL6Oq1LAXfunAetdxhhpq6eUeMNjxfYBnetFNqbwE9C4g/exec';
+const LIFF_ID = '2012549187-i2v5STQr';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxxx6GiOcMxg3ALNiiX0fmoe5-2ukUfMh2XxpVVFetDHDX_4u739vWiq5QcCZLBgqLYyg/exec';
 // โหมดทดลอง: ?demo=1 หรือเปิดนอก LINE (โหลด LINE SDK ไม่ได้ เช่น ตัวพรีวิวไฟล์)
-const DEMO = /[?&]demo=1/.test(location.search) || typeof window.DEMO_DATA !== 'undefined' || typeof liff === 'undefined';
+const DEMO = !!window.SIM_API || /[?&]demo=1/.test(location.search) || typeof window.DEMO_DATA !== 'undefined' || typeof liff === 'undefined';
 
 let M = null, kind = '', purpose = 'order', items = [], linkedPR = null, submitId = '';
-let Q = new URLSearchParams(location.search);   // อ่านใหม่หลัง liff.init (LIFF อาจเปลี่ยน URL)
+let Q = new URLSearchParams(window.SIM_QUERY || location.search);   // อ่านใหม่หลัง liff.init (LIFF อาจเปลี่ยน URL)
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
 const $ = id => document.getElementById(id);
 function show(v) {
-  ['vLoading','vRegister','vType','vForm','vReport','vDone'].forEach(x => $(x).classList.toggle('hidden', x !== v));
+  ['vLoading','vRegister','vType','vForm','vReport','vMine','vDone'].forEach(x => $(x).classList.toggle('hidden', x !== v));
   document.body.classList.toggle('light', v === 'vReport');
 }
 function clearErr() { $('formErr').textContent = ''; }
 
 async function api(body) {
+  if (window.SIM_API) return window.SIM_API(body);
   if (DEMO) return demoApi(body);
   body.idToken = liff.getIDToken();
   const res = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
@@ -215,7 +250,7 @@ async function start() {
   if (DEMO) { $('demoBadge').classList.remove('hidden'); $('demoBadge').style.display = 'inline-block'; }
   try {
     if (!DEMO) { await liff.init({ liffId: LIFF_ID }); if (!liff.isLoggedIn()) return liff.login({ redirectUri: location.href }); }
-    Q = new URLSearchParams(location.search);
+    Q = new URLSearchParams(window.SIM_QUERY || location.search);
     const out = await api({ action: 'init' });
     if (!out.ok) throw new Error(out.error);
     M = out;
@@ -231,8 +266,10 @@ function afterLogin() {
   $('btPO').classList.toggle('hidden', !M.user.canPO);
   $('btRP').classList.toggle('hidden', !M.user.canReport);
   if (Q.get('view') === 'report') return openReport();
+  if (Q.get('view') === 'mine') return openMine();
   if (!M.user.canPR && !M.user.canPO) { $('typeErr').textContent = 'บัญชีนี้ยังไม่มีสิทธิ์เปิด PR หรือ PO ติดต่อผู้ดูแลระบบ'; return show('vType'); }
   const t = Q.get('type');
+  if (Q.get('edit')) return openEdit(Q.get('edit'), Q.get('b') || '');
   if (t === 'pr' && M.user.canPR) return openPR();
   if (t === 'po' && M.user.canPO) return openPO(Q.get('pr') || '');
   if (t === 'po' && !M.user.canPO) $('typeErr').textContent = 'คุณไม่มีสิทธิ์ขออนุมัติ PO';
@@ -261,68 +298,131 @@ function resetForm() {
   const d = $('dept'); d.innerHTML = ''; Object.keys(M.keys).forEach(k => d.add(new Option(k, k))); fillKeys();
   ['lineName','jobNo','officeDetail','supplier','needBy','note'].forEach(i => $(i).value = '');
   $('noJob').checked = false; clearErr(); linkedPR = null;
-  items = [{ name: '', qty: '', unit: '' }];
+  items = [{ name: '', qty: '', unit: '' }]; $('descCustom').value = ''; setUrg('normal'); $('need').value = ''; $('budget').value = ''; $('prTypeBox').classList.add('hidden');
   $('submitBtn').disabled = false;
 }
 function openPR() {
-  kind = 'pr'; resetForm();
-  $('fTitle').textContent = 'เปิดคำขอซื้อ (PR)'; $('fTitle').style.color = '#fff';
+  kind = 'pr'; resetForm(); $('cancelPOBtn').classList.add('hidden');
+  $('fTitle').textContent = 'ขอซื้อ (PR)';
   $('commonFields').classList.remove('hidden'); $('poPart').classList.add('hidden'); $('prPart').classList.remove('hidden');
-  $('supLabel').textContent = 'ผู้จำหน่าย (ถ้ารู้)';
-  const a = $('assignee'); a.innerHTML = '<option value="">เลือกคนเปิด PO</option>'; M.poMains.forEach(n => a.add(new Option(n, n)));
-  $('submitBtn').textContent = 'ส่งคำขอซื้อ'; $('submitBtn').style.background = '#fff';
+  $('supLabel').textContent = 'ผู้จำหน่าย (ถ้ารู้ / มีร้านในใจ)';
+  $('prTypeBox').classList.remove('hidden'); setPrType('spec');
+  const a = $('assignee'); a.innerHTML = '<option value="">จัดซื้อคนไหนก็ได้</option>'; M.poMains.forEach(n => a.add(new Option(n, n)));
+  $('submitBtn').textContent = 'ส่งคำขอซื้อเข้ากลุ่ม';
   renderItems(); setPurpose('order'); show('vForm');
 }
 /* ---- ขออนุมัติ PO หลายใบ (ผู้อนุมัติคนเดียว) ---- */
 let pos = [];
 function newPO(prev) {
   return prev ? { prId: '', poNumber: '', purpose: prev.purpose, dept: prev.dept, descKey: prev.descKey, officeDetail: prev.officeDetail,
-      lineName: prev.lineName, jobNo: prev.jobNo, noJob: prev.noJob, supplier: '', total: '', due: prev.due }
-    : { prId: '', poNumber: '', purpose: 'order', dept: Object.keys(M.keys)[0], descKey: '', officeDetail: '', lineName: '', jobNo: '', noJob: false, supplier: '', total: '', due: '' };
+      lineName: prev.lineName, jobNo: prev.jobNo, noJob: prev.noJob, descCustom: prev.descCustom, supplier: '', total: '', due: '', qt: '', noQT: false, pay: prev.pay, link: '', recv: prev.recv, showRecv: prev.showRecv }
+    : { prId: '', poNumber: '', purpose: 'order', dept: Object.keys(M.keys)[0], descKey: '', officeDetail: '', lineName: '', jobNo: '', noJob: false, descCustom: '', supplier: '', total: '', due: '', qt: '', noQT: false, pay: 'run', link: '' };
 }
 function openPO(prId) {
-  kind = 'po'; resetForm();
-  $('fTitle').textContent = 'คำขออนุมัติ PO'; $('fTitle').style.color = 'var(--yel)';
+  kind = 'po'; resetForm(); editRef = null;
+  $('cancelPOBtn').classList.add('hidden'); document.querySelector('[onclick="addPO()"]').classList.remove('hidden');
+  $('fTitle').textContent = 'ขออนุมัติ PO';
   $('commonFields').classList.add('hidden'); $('poPart').classList.remove('hidden'); $('prPart').classList.add('hidden');
-  $('submitBtn').textContent = 'ส่งขออนุมัติ'; $('submitBtn').style.background = 'var(--yel)';
-  pos = [newPO()];
-  if (prId) { if (M.openPRs.some(p => p.prId === prId)) applyPR(pos[0], prId); else $('formErr').textContent = prId + ' ไม่อยู่ในรายการรอเปิด PO ของคุณ'; }
+  $('submitBtn').textContent = 'ส่งขออนุมัติเข้ากลุ่ม';
+  pos = [newPO()]; autoDue(pos[0]);
+  if (prId) { if (M.openPRs.some(p => p.prId === prId)) { applyPR(pos[0], prId); autoDue(pos[0]); } else $('formErr').textContent = prId + ' ไม่อยู่ในรายการรอเปิด PO ของคุณ'; }
   renderPOs(); show('vForm');
 }
-function addPO() { if (pos.length >= 8) { $('formErr').textContent = 'ส่งได้ครั้งละไม่เกิน 8 ใบ ส่วนที่เหลือส่งเป็นชุดใหม่'; return; } pos.push(newPO(pos[pos.length - 1])); renderPOs(); }
+/* ---- แก้ไข / ยกเลิก PO ที่ส่งไปแล้ว (ลิงก์ "✎ แก้ไข" บนการ์ด) ---- */
+let editRef = null;
+async function openEdit(poNumber, batchId) {
+  show('vLoading');
+  try {
+    const r = await api({ action: 'getPO', poNumber, batchId });
+    if (!r.ok) throw new Error(r.error);
+    const d = r.po;
+    openPO(''); editRef = { poNumber: d.poNumber, batchId: d.batchId };
+    const p = newPO(); Object.assign(p, { prId: d.prId || '', poNumber: d.poNumber, purpose: d.purpose === 'office' ? 'office' : 'order', supplier: d.supplier,
+      total: String(d.totalThb), due: d.payMode === 'urgent' ? '' : d.dueDate, dueTouched: true, qt: d.qtRef === 'ไม่มี' ? '' : d.qtRef, noQT: d.qtRef === 'ไม่มี',
+      pay: d.payMode || 'run', link: d.poLink || '', approver: d.approverName, apprTouched: true, what: d.itemDesc || '', editProj: true });
+    if (p.purpose === 'order') {
+      p.lineName = String(d.project).replace(/^line@/, '');
+      const j = String(d.detail).replace(/^Job no\.\s*/, ''); p.noJob = j === 'ยังไม่มีเลข'; p.jobNo = p.noJob ? '' : j;
+    } else {
+      p.dept = String(d.budgetKey).split('|')[0]; p.officeDetail = d.detail || '';
+      const known = (M.keys[p.dept] || []).some(([k]) => p.dept + '|' + k === d.budgetKey);
+      p.descKey = known ? d.budgetKey : CUSTOM; p.descCustom = known ? '' : String(d.budgetKey).split('|').slice(1).join('|');
+    }
+    pos = [p]; $('note').value = d.note || '';
+    $('fTitle').textContent = 'แก้ไข ' + d.poNumber;
+    $('who').textContent = 'สถานะเดิม: ' + ({ PENDING: 'รออนุมัติ', APPROVED: 'อนุมัติแล้ว', REJECTED: 'ไม่อนุมัติ' }[d.status] || d.status) + ' · ส่งแล้วต้องอนุมัติใหม่';
+    $('submitBtn').textContent = 'ส่งขออนุมัติใหม่'; $('cancelPOBtn').classList.remove('hidden');
+    document.querySelector('[onclick="addPO()"]').classList.add('hidden');
+    renderPOs(); show('vForm');
+  } catch (e) { show('vType'); $('typeErr').textContent = e.message || 'เปิดใบนี้ไม่ได้'; }
+}
+async function cancelPO() {
+  if (!editRef) return;
+  $('cancelPOBtn').disabled = true;
+  try {
+    const out = await api({ action: 'cancelPO', poNumber: editRef.poNumber, batchId: editRef.batchId, submitId });
+    if (!out.ok) throw new Error(out.error);
+    const posted = await postToGroup(out.chatText);
+    $('doneMsg').innerHTML = '<b>' + esc(out.id) + '</b> ยกเลิกแล้ว' + (posted ? '<br>การ์ดสถานะจะขึ้นในกลุ่ม' : '<br>วางข้อความนี้ในกลุ่ม: <b>' + esc(out.chatText) + '</b>') +
+      '<br><br><span style="color:var(--muted)">อย่าลืมยกเลิก PO ใน FlowAccount ด้วย</span>';
+    show('vDone');
+  } catch (e) { $('formErr').textContent = e.message; }
+  $('cancelPOBtn').disabled = false;
+}
+function addPO() { if (pos.length >= 16) { $('formErr').textContent = 'ส่งได้ครั้งละไม่เกิน 16 ใบ ส่วนที่เหลือส่งรอบถัดไป'; return; } pos.push(newPO(pos[pos.length - 1])); autoDue(pos[pos.length - 1]); renderPOs(); }
 function applyPR(p, prId) {
   const pr = M.openPRs.find(x => x.prId === prId); p.prId = pr ? prId : '';
+  p.editProj = false;
   if (!pr) return;
-  p.purpose = pr.purpose; p.supplier = pr.supplier || p.supplier;
+  p.purpose = pr.purpose; p.supplier = pr.supplier || p.supplier; p.what = pr.what || p.what || '';
   if (pr.purpose === 'order') {
     p.lineName = String(pr.project).replace(/^line@/, '');
     const j = String(pr.detail).replace(/^Job no\.\s*/, ''); p.noJob = j === 'ยังไม่มีเลข'; p.jobNo = p.noJob ? '' : j;
-  } else { p.dept = String(pr.budgetKey).split('|')[0]; p.descKey = pr.budgetKey; p.officeDetail = pr.detail || ''; }
+  } else {
+    p.dept = String(pr.budgetKey).split('|')[0]; p.officeDetail = pr.detail || '';
+    const known = (M.keys[p.dept] || []).some(([d]) => p.dept + '|' + d === pr.budgetKey);
+    p.descKey = known ? pr.budgetKey : CUSTOM; p.descCustom = known ? '' : String(pr.budgetKey).split('|').slice(1).join('|');
+  }
 }
 function opt(v, label, sel) { return '<option value="' + esc(v) + '"' + (sel ? ' selected' : '') + '>' + esc(label) + '</option>'; }
 function renderPOs() {
+  suggestApprover();
   const box = $('poRows'); box.innerHTML = '';
   const used = pos.map(p => p.prId);
   pos.forEach((p, i) => {
-    const keys = M.keys[p.dept] || []; if (!p.descKey || p.descKey.split('|')[0] !== p.dept) p.descKey = keys.length ? p.dept + '|' + keys[0][0] : '';
+    const keys = M.keys[p.dept] || []; if (p.descKey !== CUSTOM && (!p.descKey || p.descKey.split('|')[0] !== p.dept)) p.descKey = keys.length ? p.dept + '|' + keys[0][0] : CUSTOM;
+    const fromPR = p.prId && !p.editProj, ph = poHeader(p);
     const prOpts = opt('', 'ไม่มี PR', !p.prId) + M.openPRs.filter(x => x.prId === p.prId || used.indexOf(x.prId) < 0)
       .map(x => opt(x.prId, x.prId + ' · ' + x.firstItem + ' · ' + x.requester, x.prId === p.prId)).join('');
     const d = document.createElement('div'); d.className = 'po-card';
     d.innerHTML =
       '<div class="po-h">PO ใบที่ ' + (i + 1) + (pos.length > 1 ? '<button data-del>ลบใบนี้</button>' : '') + '</div>' +
-      '<label>อ้างอิงคำขอซื้อ (ถ้ามี)</label><select data-f="prId">' + prOpts + '</select>' +
+      (editRef ? (p.prId ? '<div class="sugg">อ้างอิง ' + esc(p.prId) + '</div>' : '') : '<label>อ้างอิงคำขอซื้อ (ถ้ามี)</label><select data-f="prId">' + prOpts + '</select>') +
       '<label>เลข PO <span class="req">*</span></label><input data-f="poNumber" placeholder="PO202611090004" autocapitalize="characters">' +
-      '<label>สั่งซื้อเพื่อ</label><div class="seg"><button data-p="office"' + (p.purpose === 'office' ? ' class="on"' : '') + '>งานสำนักงาน</button><button data-p="order"' + (p.purpose === 'order' ? ' class="on"' : '') + '>งานออร์เดอร์ลูกค้า</button></div>' +
+      '<label>ลิงก์ PO จาก FlowAccount <span style="color:var(--muted);font-weight:400">(แนะนำ แทนการส่งรูป)</span></label><input data-f="link" type="url" inputmode="url" placeholder="https://share.flowaccount.com/po/...">' +
+      '<div class="sugg">FlowAccount → เปิด PO → แชร์ → คัดลอกลิงก์ · ผู้อนุมัติกดดูเอกสารจากการ์ดได้เลย</div>' +
+      (fromPR ? '<div class="sum" style="display:block;line-height:1.6"><div style="font-size:12px;color:var(--muted)">ดึงจาก ' + esc(p.prId) + ' <a data-edit style="color:#0089B3;cursor:pointer;margin-left:6px">แก้</a></div>' +
+        '<div><b style="font-size:14px">' + esc(ph.project) + '</b></div>' + (ph.detail ? '<div style="font-size:13px">' + esc(ph.detail) + '</div>' : '') + '</div>' : '') +
+      (fromPR ? '' : '<label>สั่งซื้อเพื่อ</label><div class="seg"><button data-p="office"' + (p.purpose === 'office' ? ' class="on"' : '') + '>งานสำนักงาน</button><button data-p="order"' + (p.purpose === 'order' ? ' class="on"' : '') + '>งานออร์เดอร์ลูกค้า</button></div>' +
       (p.purpose === 'office'
         ? '<label>โปรเจ็ค (แผนก | Desc Key)</label><div class="row"><select data-f="dept">' + Object.keys(M.keys).map(k => opt(k, k, k === p.dept)).join('') + '</select><select data-f="descKey">' +
-          keys.map(([desc, mx]) => opt(p.dept + '|' + desc, desc + ' · ' + mx, p.dept + '|' + desc === p.descKey)).join('') + '</select></div>' +
-          '<label>รายละเอียด</label><input data-f="officeDetail" placeholder="ไม่บังคับ">'
+          keys.map(([desc, mx]) => opt(p.dept + '|' + desc, desc + ' · ' + mx, p.dept + '|' + desc === p.descKey)).join('') + opt(CUSTOM, CUSTOM_LABEL, p.descKey === CUSTOM) + '</select></div>' +
+          (p.descKey === CUSTOM ? '<input data-f="descCustom" style="margin-top:8px" placeholder="พิมพ์ Desc Key เอง">' : '') +
+          ''
         : '<label>โปรเจ็ค</label><div class="pf"><span>line@</span><input data-f="lineName" placeholder="JT คุณเต้ย"></div>' +
           '<label>รายละเอียด</label><div class="pf"><span>Job no.</span><input data-f="jobNo" placeholder="TSH102026011"' + (p.noJob ? ' disabled' : '') + '></div>' +
-          '<label class="chk"><input type="checkbox" data-f="noJob"' + (p.noJob ? ' checked' : '') + '> ยังไม่มีเลขงาน</label>') +
+          '<label class="chk"><input type="checkbox" data-f="noJob"' + (p.noJob ? ' checked' : '') + '> ยังไม่มีเลขงาน</label>')) +
       '<label>ผู้จำหน่าย <span class="req">*</span></label><input data-f="supplier" list="supList" placeholder="พิมพ์ค้นหา">' +
-      '<div class="row"><div><label>ยอดรวม (บาท) <span class="req">*</span></label><input data-f="total" type="number" step="0.01" inputmode="decimal" placeholder="0.00"></div>' +
-      '<div><label>รอบชำระ <span class="req">*</span></label><input data-f="due" type="date"></div></div>';
+      '<label>สั่งอะไร <span class="req">*</span></label><input data-f="what" maxlength="200" placeholder="เช่น ผ้า Cotton 32 สีดำ 50 กก. / ถุงผ้าสกรีน 200 ใบ">' +
+      '<label>เลขอ้างอิง QT</label><input data-f="qt" placeholder="QT202610060004"' + (p.noQT ? ' disabled' : '') + ' autocapitalize="characters">' +
+      '<label class="chk"><input type="checkbox" data-f="noQT"' + (p.noQT ? ' checked' : '') + '> ไม่มีเลข QT</label>' +
+      '<label>ยอดรวมตาม PO (บาท) <span class="req">*</span></label><input data-f="total" type="number" step="0.01" inputmode="decimal" placeholder="0.00">' +
+      '<label>การจ่ายเงิน</label><div class="seg"><button data-pay="run"' + (p.pay === 'run' ? ' class="on"' : '') + '>ตามรอบ</button><button data-pay="urgent"' + (p.pay === 'urgent' ? ' class="on urg"' : '') + '>ด่วนวันนี้</button><button data-pay="hold"' + (p.pay === 'hold' ? ' class="on"' : '') + '>ยังไม่ต้องจ่าย</button></div>' +
+      (p.pay === 'urgent' ? '' : '<label>รอบชำระ' + (p.pay === 'run' ? ' <span class="req">*</span>' : ' (ถ้ารู้)') + '</label><input data-f="due" type="date">' +
+        (p.pay === 'run' ? '<div class="sugg" data-paynote>' + payNote(p) + '</div>' +
+          (p.showRecv ? '<label>วันรับของ / วางบิล (เริ่มนับเครดิต)</label><input data-f="recv" type="date">' : '') : '')) +
+      '<label>ผู้อนุมัติ <span class="req">*</span></label><select data-f="approver">' + approverOpts(p) + '</select>' +
+      '<div class="sugg">' + apprHint(p) + '</div>';
     d.querySelectorAll('[data-f]').forEach(el => {
       const f = el.dataset.f;
       if (el.type === 'checkbox') el.checked = !!p[f]; else if (el.tagName !== 'SELECT') el.value = p[f] || '';
@@ -330,31 +430,83 @@ function renderPOs() {
         clearErr();
         if (el.type === 'checkbox') { p[f] = el.checked; return renderPOs(); }
         p[f] = f === 'poNumber' || f === 'jobNo' ? el.value.toUpperCase().replace(f === 'poNumber' ? /\s/g : /^$/, '') : el.value;
+        if (f === 'qt') { p.qt = el.value.toUpperCase(); el.value = p.qt; }
         if (f === 'poNumber' || f === 'jobNo') el.value = p[f];
-        if (f === 'prId') { applyPR(p, el.value); return renderPOs(); }
+        if (f === 'prId') { applyPR(p, el.value); autoDue(p); return renderPOs(); }
         if (f === 'dept') { p.descKey = ''; return renderPOs(); }
+        if (f === 'descKey') return renderPOs();
         if (f === 'total') sumPOs();
+        if (f === 'due') p.dueTouched = !!el.value;
+        if (f === 'approver') { p.apprTouched = true; return renderPOs(); }
+        if (f === 'supplier' || f === 'recv') { autoDue(p); const n = d.querySelector('[data-paynote]'); if (n) n.innerHTML = payNote(p); const du = d.querySelector('[data-f="due"]'); if (du) du.value = p.due || ''; }
       });
     });
     d.querySelectorAll('[data-p]').forEach(bt => bt.onclick = () => { p.purpose = bt.dataset.p; renderPOs(); });
+    const ed = d.querySelector('[data-edit]'); if (ed) ed.onclick = () => { p.editProj = true; renderPOs(); };
+    d.querySelectorAll('[data-pay]').forEach(bt => bt.onclick = () => { p.pay = bt.dataset.pay; autoDue(p); renderPOs(); });
+    d.addEventListener('click', e => {           // ลิงก์ในบรรทัดรอบชำระ (สร้างใหม่ทุกครั้งที่เปลี่ยนผู้จำหน่าย)
+      if (e.target.hasAttribute('data-recv')) { p.showRecv = true; renderPOs(); }
+      if (e.target.hasAttribute('data-reset')) { p.dueTouched = false; autoDue(p); renderPOs(); }
+    });
     const del = d.querySelector('[data-del]'); if (del) del.onclick = () => { pos.splice(i, 1); renderPOs(); };
     box.appendChild(d);
   });
-  fillApprovers(); sumPOs();
+  sumPOs();
 }
+/* ---- รอบทำจ่าย: (วันรับของ หรือวันนี้) + เครดิตของผู้จำหน่าย → พุธที่ตรงหรือถัดไป ---- */
+const TH_DAY = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
+function isoToday() { const d = new Date(Date.now() + 7 * 3600e3); return d.toISOString().slice(0, 10); }
+function addDaysISO(iso, n) { const [y, m, d] = iso.split('-').map(Number), t = new Date(Date.UTC(y, m - 1, d + n)); return t.toISOString().slice(0, 10); }
+function payDate(base, days) {
+  const due = addDaysISO(base, Number(days) || 0), [y, m, d] = due.split('-').map(Number), wd = M.payWeekday == null ? 3 : M.payWeekday;
+  const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  return { due, pay: addDaysISO(due, (wd - dow + 7) % 7) };
+}
+function supKey(n) {   // ชื่อผู้จำหน่ายแบบตัดคำนำหน้า/ช่องว่าง เพื่อจับคู่ "บริษัท ที คัลเจอร์ จำกัด" = "ทีคัลเจอร์"
+  let t = String(n || '').toLowerCase().replace(/\(.*?\)/g, '');
+  ['ห้างหุ้นส่วนจำกัด', 'บริษัท', 'จำกัด', 'มหาชน', 'หจก.', 'สำนักงานใหญ่', 'co., ltd.', 'co.,ltd.', 'ltd.'].forEach(w => { t = t.split(w).join(''); });
+  return t.replace(/[\s.,_()\-]+/g, '');
+}
+function creditOf(p) { const k = supKey(p.supplier), c = k ? (M.credit || {})[k] : undefined; return c === undefined ? null : c; }
+function thd(iso) { const [y, m, d] = iso.split('-').map(Number); return TH_DAY[new Date(Date.UTC(y, m - 1, d)).getUTCDay()] + ' ' + d + '/' + m; }
+function autoDue(p) { if (p.pay === 'run' && !p.dueTouched) p.due = payDate(p.recv || isoToday(), creditOf(p) || 0).pay; }
+function payNote(p) {
+  const c = creditOf(p), base = p.recv || isoToday(), r = payDate(base, c || 0);
+  const term = c === null ? 'ไม่พบเงื่อนไขของผู้จำหน่ายนี้ → คิดแบบเดบิต' : c ? 'เครดิต ' + c + ' วัน' : 'เดบิต / เงินสด';
+  const how = c ? 'ครบ ' + thd(r.due) + ' → จ่าย' : 'จ่ายรอบ';
+  return term + ' · ' + how + ' <b>' + thd(r.pay) + '</b> (นับจาก' + (p.recv ? 'วันรับของ ' + thd(base) : 'วันนี้') + ')' +
+    (p.dueTouched && p.due !== r.pay ? ' · <a data-reset style="color:#0089B3;cursor:pointer">ใช้วันที่คำนวณ</a>' : '') +
+    (p.showRecv ? '' : ' · <a data-recv style="color:#0089B3;cursor:pointer">เปลี่ยนวันรับของ</a>');
+}
+
+/* ---- ผู้อนุมัติรายใบ: แนะนำตามโปรเจ็ค (Settings: approver_map) · เปลี่ยนได้ · ส่งแล้วระบบแยกชุดตามผู้อนุมัติ ---- */
+const money = n => '฿' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function suggestedFor(p) { const m = M.approverMap || {}; return m[p.purpose === 'order' ? 'order' : p.dept] || m['*'] || ''; }
+function allowedApprovers(p) {
+  const req = (M.openPRs.find(x => x.prId === p.prId) || {}).requester, no = [req, M.user.name].filter(Boolean);
+  return M.approvers.filter(n => no.indexOf(n) < 0 || M.selfApprovers.includes(n));
+}
+function approverOpts(p) {
+  return opt('', 'เลือกผู้อนุมัติ', !p.approver) + allowedApprovers(p).map(n => opt(n, n === M.user.name ? n + ' (ตัวเอง)' : n, n === p.approver)).join('');
+}
+function apprHint(p) {
+  const s = suggestedFor(p); if (!s) return '';
+  return 'แนะนำ: ' + esc(s) + ' (' + esc(p.purpose === 'order' ? 'งานออร์เดอร์ลูกค้า' : p.dept) + ')' + (p.approver && p.approver !== s ? ' · คุณเลือกคนอื่น' : '');
+}
+function suggestApprover() {
+  pos.forEach(p => { const s = suggestedFor(p); if (!p.apprTouched && s && allowedApprovers(p).includes(s)) p.approver = s; });
+}
+function groupsOf() { const g = {}; pos.forEach(p => { const k = p.approver || '(ยังไม่เลือก)'; (g[k] = g[k] || { n: 0, t: 0 }); g[k].n++; g[k].t += Number(p.total) || 0; }); return g; }
 function sumPOs() {
-  const t = pos.reduce((s, p) => s + (Number(p.total) || 0), 0);
-  $('poSum').textContent = pos.length + ' ใบ · รวม ฿' + t.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const t = pos.reduce((s, p) => s + (Number(p.total) || 0), 0), g = groupsOf(), names = Object.keys(g);
+  $('poSum').innerHTML = pos.length + ' ใบ · รวม <b>' + money(t) + '</b>' + (names.length > 1 ? ' · <span style="color:var(--muted)">แยกส่ง ' + names.length + ' ผู้อนุมัติ</span>' : '');
+  $('poGroups').innerHTML = names.map(n => '<div style="display:flex;justify-content:space-between;font-size:12.5px;padding:3px 0;border-top:1px dashed var(--line)"><span>→ <strong style="font-size:13px">' + esc(n) + '</strong> ' + g[n].n + ' ใบ</span><span>' + money(g[n].t) + '</span></div>').join('');
 }
-function fillApprovers() {
-  const reqs = pos.map(p => (M.openPRs.find(x => x.prId === p.prId) || {}).requester).filter(Boolean).concat([M.user.name]);
-  const a = $('approver'), cur = a.value; a.innerHTML = '<option value="">เลือกผู้อนุมัติ</option>';
-  M.approvers.filter(n => reqs.indexOf(n) < 0 || M.selfApprovers.includes(n)).forEach(n => a.add(new Option(n === M.user.name ? n + ' (ตัวเอง)' : n, n)));
-  a.value = cur;
-}
+function fillApprovers() {}
 function poHeader(p) {
   if (p.purpose === 'order') return { project: 'line@' + String(p.lineName || '').trim(), detail: 'Job no. ' + (p.noJob ? 'ยังไม่มีเลข' : String(p.jobNo || '').split(',').map(x => x.trim()).filter(Boolean).join(', ')), budgetKey: '' };
-  return { project: p.descKey, detail: String(p.officeDetail || '').trim(), budgetKey: p.descKey };
+  const key = p.descKey === CUSTOM ? p.dept + '|' + String(p.descCustom || '').trim() : p.descKey;
+  return { project: key + (p.descKey === CUSTOM ? ' (นอกกรอบงบ)' : ''), detail: String(p.officeDetail || '').trim(), budgetKey: key };
 }
 function poRowError(p, i) {
   const tag = pos.length > 1 ? 'ใบที่ ' + (i + 1) + ': ' : '';
@@ -365,15 +517,23 @@ function poRowError(p, i) {
     const re = new RegExp(M.settings.jobPattern), jobs = String(p.jobNo || '').split(',').map(x => x.trim()).filter(Boolean);
     if (!p.noJob && (!jobs.length || jobs.some(j => !re.test(j)))) return tag + 'เลขงาน: ตัวอักษร 3 + ตัวเลข 9 หลัก หรือติ๊ก ยังไม่มีเลขงาน';
   } else if (!p.descKey) return tag + 'เลือกแผนกและ Desc Key';
+  else if (p.descKey === CUSTOM && !String(p.descCustom || '').trim()) return tag + 'พิมพ์ Desc Key';
+  if (String(p.what || '').trim().length < 2) return tag + 'ใส่ว่าสั่งอะไร';
+  if (p.link && !/^https:\/\/share\.flowaccount\.com\/[\w\/.-]+$/.test(p.link.trim())) return tag + 'ลิงก์ PO ต้องเป็นลิงก์แชร์ของ FlowAccount';
   if (!String(p.supplier || '').trim()) return tag + 'ใส่ผู้จำหน่าย';
   if (!(Number(p.total) > 0)) return tag + 'ใส่ยอดรวม';
-  if (!p.due) return tag + 'เลือกรอบชำระ';
+  if (!p.noQT && p.qt && !/^[A-Z0-9-]{4,}$/.test(p.qt)) return tag + 'เลข QT ไม่ถูกรูปแบบ (หรือติ๊ก ไม่มีเลข QT)';
+  if (p.pay === 'run' && !p.due) return tag + 'เลือกรอบชำระ (หรือเลือก ด่วนวันนี้ / ยังไม่ต้องจ่าย)';
   return '';
 }
+const CUSTOM = '__custom', CUSTOM_LABEL = '✎ พิมพ์เอง (นอกกรอบงบ)';
 function fillKeys() {
   const dept = $('dept').value, s = $('descKey'); s.innerHTML = '';
   (M.keys[dept] || []).forEach(([desc, mx]) => s.add(new Option(desc + ' · ' + mx, dept + '|' + desc)));
+  s.add(new Option(CUSTOM_LABEL, CUSTOM));
 }
+let urgency = 'normal';
+function setUrg(u) { urgency = u; $('uN').classList.toggle('on', u === 'normal'); $('uU').classList.toggle('on', u === 'urgent'); $('uU').classList.toggle('urg', u === 'urgent'); }
 function setPurpose(p) {
   purpose = p;
   $('pOff').classList.toggle('on', p === 'office'); $('pOrd').classList.toggle('on', p === 'order');
@@ -394,6 +554,13 @@ function renderItems() {
     box.appendChild(d);
   });
 }
+let prType = 'spec';
+function setPrType(t) {
+  prType = t; clearErr();
+  $('tSpec').classList.toggle('on', t === 'spec'); $('tSrc').classList.toggle('on', t === 'sourcing');
+  $('specPart').classList.toggle('hidden', t !== 'spec'); $('srcPart').classList.toggle('hidden', t !== 'sourcing');
+  $('prTypeHint').textContent = t === 'spec' ? 'รู้ของ / สเปก / จำนวนแล้ว → จัดซื้อสั่งได้เลย' : 'หาของเทียบ / หาเจ้าใหม่ · มีแค่ปัญหาหรือความต้องการ → จัดซื้อหาทางเลือก + ราคา มาเสนอ';
+}
 function addItem() { items.push({ name: '', qty: '', unit: '' }); renderItems(); }
 
 /* ---- โปรเจ็ค / รายละเอียด ---- */
@@ -405,10 +572,11 @@ function jobError() {
 }
 function header() {
   if (purpose === 'order') return { project: 'line@' + $('lineName').value.trim(), detail: 'Job no. ' + ($('noJob').checked ? 'ยังไม่มีเลข' : jobList().join(', ')), budgetKey: '' };
-  return { project: $('descKey').value, detail: $('officeDetail').value.trim(), budgetKey: $('descKey').value };
+  const custom = $('descKey').value === CUSTOM, key = custom ? $('dept').value + '|' + $('descCustom').value.trim() : $('descKey').value;
+  return { project: key + (custom ? ' (นอกกรอบงบ)' : ''), detail: $('officeDetail').value.trim(), budgetKey: key };
 }
 function preview() {
-  clearErr(); $('jobNo').disabled = $('noJob').checked; $('jobErr').textContent = jobError();
+  clearErr(); $('descCustom').classList.toggle('hidden', $('descKey').value !== CUSTOM); $('jobNo').disabled = $('noJob').checked; $('jobErr').textContent = jobError();
   const h = header(); $('preview').textContent = 'โปรเจ็ค: ' + h.project + (h.detail ? '  ·  รายละเอียด: ' + h.detail : '');
 }
 
@@ -416,16 +584,21 @@ function preview() {
 function validate() {
   if (kind === 'po') {
     for (let i = 0; i < pos.length; i++) { const e = poRowError(pos[i], i); if (e) return e; }
-    return $('approver').value ? '' : 'เลือกผู้อนุมัติ';
+    const g = groupsOf(), names = Object.keys(g);
+    if (pos.some(p => !p.approver)) return 'ใบที่ ' + (pos.findIndex(p => !p.approver) + 1) + ': เลือกผู้อนุมัติ';
+    if (names.length > 4) return 'ส่งได้ครั้งละไม่เกิน 4 ผู้อนุมัติ ส่วนที่เหลือส่งรอบถัดไป';
+    const big = names.find(n => g[n].n > 8); if (big) return 'ส่งให้ ' + big + ' ได้ไม่เกิน 8 ใบต่อรอบ';
+    return '';
   }
   if (purpose === 'order') {
     if (!$('lineName').value.trim()) return 'ใส่ชื่อไลน์ลูกค้า (โปรเจ็ค)';
     if (!$('noJob').checked && !jobList().length) return 'ใส่เลขงาน หรือติ๊ก "ยังไม่มีเลขงาน"';
     if (jobError()) return jobError();
   } else if (!$('descKey').value) return 'เลือกแผนกและ Desc Key';
-  if (items.some(it => !it.name.trim() || !(Number(it.qty) > 0))) return 'กรอกรายการให้ครบ (ชื่อ, จำนวน) หรือลบรายการที่ว่าง';
+  else if ($('descKey').value === CUSTOM && !$('descCustom').value.trim()) return 'พิมพ์ Desc Key';
+  if (prType === 'spec' && items.some(it => !it.name.trim() || !(Number(it.qty) > 0))) return 'กรอกรายการให้ครบ (ชื่อ, จำนวน) หรือลบรายการที่ว่าง';
+  if (prType === 'sourcing' && $('need').value.trim().length < 10) return 'เล่าปัญหา / ความต้องการอีกนิด (อย่างน้อย 1 ประโยค)';
   if (!$('needBy').value) return 'เลือกวันที่ต้องการ';
-  if (!$('assignee').value) return 'เลือกคนเปิด PO';
   return '';
 }
 async function submitForm() {
@@ -433,9 +606,10 @@ async function submitForm() {
   const h = header();
   const base = { purpose, project: h.project, detail: h.detail, budgetKey: h.budgetKey, supplier: $('supplier').value.trim(), note: $('note').value.trim() };
   const payload = kind === 'pr'
-    ? Object.assign(base, { action: 'submitPR', items: items.map(it => ({ name: it.name.trim(), qty: Number(it.qty), unit: it.unit.trim() })), needBy: $('needBy').value, assignee: $('assignee').value })
-    : { action: 'submitPO', approver: $('approver').value, note: $('note').value.trim(),
-        pos: pos.map(p => Object.assign(poHeader(p), { prId: p.prId, poNumber: p.poNumber, purpose: p.purpose, supplier: String(p.supplier).trim(), totalThb: Number(p.total), dueDate: p.due })) };
+    ? Object.assign(base, { action: 'submitPR', items: prType === 'sourcing' ? [] : items.map(it => ({ name: it.name.trim(), qty: Number(it.qty), unit: it.unit.trim() })), needBy: $('needBy').value, assignee: $('assignee').value, urgency,
+        prType, need: prType === 'sourcing' ? $('need').value.trim() : '', budget: prType === 'sourcing' ? Number($('budget').value) || '' : '' })
+    : { action: 'submitPO', note: $('note').value.trim(),
+        pos: pos.map(p => Object.assign(poHeader(p), { prId: p.prId, poNumber: p.poNumber, purpose: p.purpose, supplier: String(p.supplier).trim(), totalThb: Number(p.total), dueDate: p.pay === 'urgent' ? '' : p.due, recvDate: p.recv || '', qtRef: p.noQT ? 'ไม่มี' : String(p.qt || '').trim(), payMode: p.pay, poLink: String(p.link || '').trim(), approver: p.approver, itemDesc: String(p.what || '').trim(), replaces: editRef || undefined })) };
   payload.submitId = submitId;
   const label = $('submitBtn').textContent;
   $('submitBtn').disabled = true; $('submitBtn').textContent = 'กำลังส่ง…';
@@ -443,8 +617,9 @@ async function submitForm() {
     const out = await api(payload);
     if (!out.ok) throw new Error(out.error);
     const posted = await postToGroup(out.chatText);
-    const to = kind === 'pr' ? payload.assignee + ' (เปิด PO)' : payload.approver + ' (อนุมัติ)';
-    $('doneMsg').innerHTML = '<b>' + esc(out.id) + (out.count > 1 ? ' (' + out.count + ' ใบ)' : '') + '</b> ส่งให้ <b>' + esc(to) + '</b>' +
+    const to = kind === 'pr' ? (payload.assignee || 'จัดซื้อคนไหนก็ได้') + ' (เปิด PO)' : '';
+    $('doneMsg').innerHTML = (kind === 'pr' ? '<b>' + esc(out.id) + '</b> ส่งให้ <b>' + esc(to) + '</b>'
+        : (out.batches || [{ id: out.id, approver: '', count: out.count }]).map(bt => '<b>' + esc(bt.id) + '</b> · ' + bt.count + ' ใบ → <b>' + esc(bt.approver) + '</b>').join('<br>')) +
       (posted ? '<br>การ์ดจะขึ้นในกลุ่มจัดซื้อ' :
         '<br><br><span style="color:var(--yel)">ยังไม่ได้ส่งเข้ากลุ่ม</span><br>คัดลอกข้อความนี้ไปวางในกลุ่มจัดซื้อ:<br><b>' + esc(out.chatText) + '</b>');
     show('vDone');
@@ -456,6 +631,7 @@ async function submitForm() {
 }
 /** เปิดจากกลุ่ม → ส่งเข้ากลุ่มเลย · เปิดจาก Rich menu (1:1) → หน้าต่างแชร์ให้เลือกกลุ่ม */
 async function postToGroup(text) {
+  if (window.SIM_POST) return window.SIM_POST(text);
   if (DEMO) return true;
   const msg = [{ type: 'text', text }];
   try {
@@ -472,6 +648,17 @@ const thM = ym => { const [y, m] = ym.split('-').map(Number); return TH_MONTH[m 
 const thD = s => { if (!s) return '-'; const [y, m, d] = s.split('-').map(Number); return d + '/' + m + '/' + String(y + 543).slice(-2); };
 const baht = n => '฿' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 
+async function openMine() {
+  show('vMine'); $('mineWho').textContent = M.user.name; $('mineList').innerHTML = '<div class="who">กำลังโหลด…</div>';
+  try {
+    const r = await api({ action: 'mine' });
+    if (!r.ok) throw new Error(r.error);
+    $('mineList').innerHTML = r.lines.length ? r.lines.map(l => {
+      const c = /รอจ่าย/.test(l) ? 'var(--cyan)' : /อนุมัติ/.test(l) ? 'var(--yel)' : 'var(--ink)';
+      return '<div style="border:1px solid var(--line);border-left:5px solid ' + c + ';background:#fff;border-radius:10px;padding:11px 12px;margin-bottom:8px;font-size:14px">' + esc(l) + '</div>';
+    }).join('') : '<div class="who" style="font-size:15px">ไม่มีรายการค้าง ✅</div>';
+  } catch (e) { $('mineList').innerHTML = '<div class="err">' + esc(e.message) + '</div>'; }
+}
 function openReport() {
   if (!M.user.canReport) { $('typeErr').textContent = 'คุณไม่มีสิทธิ์ดูรายงาน'; return show('vType'); }
   show('vReport'); loadReport('');
@@ -536,11 +723,14 @@ function demoApi(body) {
     approvers: ['มุก', 'วิ้งค์', 'ข้าวฟ่าง', 'มะปราง', 'แพรว', 'พลอยใส', 'ตั๊ะ'], selfApprovers: ['วิ้งค์', 'แพรว'],
     poMains: ['ทราย-จัดซื้อ', 'มุก', 'วิ้งค์', 'มะปราง', 'แพรว', 'พลอยใส', 'ตั๊ะ'],
     openPRs: [{ prId: 'PR-0001', requester: 'คิตตี้', purpose: 'office', budgetKey: 'E-commerce|PR', project: 'E-commerce|PR', detail: 'ของแจกงานอีเวนต์', supplier: '', firstItem: 'ถุงผ้า' }],
+    credit: { 'ทีคัลเจอร์': 30, 'ร้านsayi': 0 }, payWeekday: 3,
+    approverMap: { order: 'มุก', 'HR&Admin': 'มะปราง', 'E-commerce': 'แพรว', '*': 'มุก' },
     settings: { jobPattern: '^[A-Z]{3}\\d{9}$', poPattern: '^PO\\d{12}$' } };
   if (body.action === 'init') return Promise.resolve(Object.assign({ ok: true }, D));
   if (body.action === 'report') return Promise.resolve(Object.assign({ ok: true }, DEMO_REPORT));
+  if (body.action === 'mine') return Promise.resolve({ ok: true, name: D.user.name, lines: ['PR-0012 รอ ทราย-จัดซื้อ เปิด PO', 'PO202611090004 รอ มุก อนุมัติ ฿5,350.00', 'PO202611070002 อนุมัติแล้ว รอจ่าย ฿42,600.00'] });
   if (body.action === 'submitPR') return Promise.resolve({ ok: true, id: 'PR-DEMO', chatText: '#PR PR-DEMO' });
-  if (body.action === 'submitPO') return Promise.resolve({ ok: true, id: 'B-DEMO', count: body.pos.length, chatText: '#PO B-DEMO' });
+  if (body.action === 'submitPO') { const names = [...new Set(body.pos.map(p => p.approver))]; return Promise.resolve({ ok: true, id: names.map((n, i) => 'B-DEMO' + (i + 1)).join(' '), count: body.pos.length, batches: names.map((n, i) => ({ id: 'B-DEMO' + (i + 1), approver: n, count: body.pos.filter(p => p.approver === n).length })), chatText: '#PO B-DEMO' }); }
   return Promise.resolve({ ok: false, error: 'demo' });
 }
 
