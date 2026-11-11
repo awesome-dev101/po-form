@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>PR / PO · Awesome Screen</title>
+<meta name="description" content="ขอซื้อ (PR) · ขออนุมัติ PO · งานของฉัน · รายงานจัดซื้อ">
+<meta property="og:title" content="PR / PO · Awesome Screen">
+<meta property="og:description" content="ขอซื้อ · ขออนุมัติ PO · งานของฉัน · รายงานจัดซื้อ">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://script.google.com"><link rel="preconnect" href="https://script.googleusercontent.com"><link rel="preconnect" href="https://api.line.me">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
@@ -55,6 +60,19 @@
   .sugg { font-size:11.5px; color:var(--muted); margin-top:4px; }
   .center { text-align:center; padding-top:40px; }
   .hidden { display:none; }
+  .warn { background:#FFF4DC; border:1px solid #F5C66B; color:#5A4100; border-radius:10px; padding:9px 12px; font-size:12.5px; margin-top:10px; line-height:1.55; }
+  .copybox { background:#fff; border:1px dashed #BDBDBD; border-radius:12px; padding:12px; margin:14px auto 0; max-width:420px; font-weight:600; word-break:break-all; color:var(--ink); }
+  .bigbtn { display:block; width:100%; max-width:420px; margin:10px auto 0; padding:14px; border:0; border-radius:12px; background:var(--ink); color:#fff; font-size:16px; font-weight:600; font-family:inherit; text-decoration:none; }
+  .bigbtn.sec { background:#fff; color:var(--ink); border:1px solid var(--line); }
+  .mi { border:1px solid var(--line); background:#fff; border-radius:12px; padding:11px 12px; margin-bottom:8px; font-size:14px; }
+  .mi .s { color:var(--muted); font-size:12px; margin-top:2px; }
+  .mi .acts { display:flex; gap:8px; margin-top:8px; }
+  .mi .acts button { flex:1; padding:7px; border-radius:8px; border:1px solid var(--line); background:#fff; font-family:inherit; font-size:12.5px; color:var(--ink); }
+  .mi .tl { margin-top:8px; border-top:1px solid #EEE; padding-top:6px; font-size:12px; }
+  .mi .tl div { padding:3px 0; } .mi .tl b { font-weight:600; } .mi .tl span { color:var(--muted); }
+  .badge { display:inline-block; font-size:10.5px; font-weight:600; padding:1px 7px; border-radius:6px; margin-left:6px; vertical-align:1px; }
+  .sk { background:linear-gradient(90deg,#EEE 25%,#F6F6F6 50%,#EEE 75%); background-size:200% 100%; animation:sk 1.2s infinite; border-radius:14px; height:64px; margin-top:10px; }
+  @keyframes sk { from { background-position:200% 0 } to { background-position:-200% 0 } }
   /* ===== หน้ารายงาน (โทนสว่าง สี CI) ===== */
   body.light { background:#F4F4F4; color:#1A1A1A; }
   body.light .wrap { padding:0 0 40px; max-width:760px; }
@@ -103,7 +121,7 @@
   <div id="demoBadge" class="hidden" style="font-size:10.5px;color:#1A1A1A;background:var(--grn);padding:2px 8px;border-radius:6px">ทดลอง · ไม่บันทึกจริง</div></div></div>
 <div class="wrap">
 
-  <div id="vLoading" class="center"><h1>กำลังโหลด…</h1></div>
+  <div id="vLoading"><h1 style="margin-top:6px">PR / PO</h1><div class="who" id="loadStep">กำลังเชื่อมต่อ LINE…</div><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
 
   <div id="vRegister" class="hidden">
     <h1>ลงทะเบียน</h1>
@@ -131,6 +149,7 @@
     <button class="back" onclick="show('vType')">‹ เปลี่ยนประเภท</button>
     <h1 id="fTitle"></h1>
     <div class="who" id="who"></div>
+    <div id="outsideWarn" class="warn hidden">เปิดฟอร์มจาก<b>นอกกลุ่ม LINE</b> (เช่น บนคอม) — ส่งเสร็จ ระบบจะคัดลอกข้อความให้ แล้วไป<b>วาง (Ctrl+V) ในกลุ่มจัดซื้อ</b> การ์ดจึงจะขึ้น</div>
 
     <div id="prTypeBox" class="hidden">
       <label>ประเภทงาน</label>
@@ -217,13 +236,20 @@
   <div id="vDone" class="hidden center">
     <div style="width:64px;height:64px;border-radius:50%;background:var(--grn);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:32px">✓</div><h1>ส่งแล้ว</h1>
     <div id="doneMsg" class="who" style="font-size:14px;line-height:1.7"></div>
+    <div id="donePaste" class="hidden">
+      <div class="warn" style="max-width:420px;margin:14px auto 0;text-align:left">ยังไม่ได้ส่งเข้ากลุ่ม · <b id="copyState">คัดลอกให้แล้ว</b> ไปที่กลุ่มจัดซื้อ แล้วกด <b>วาง (Ctrl+V)</b> → Enter</div>
+      <div class="copybox" id="copyText"></div>
+      <button class="bigbtn" onclick="copyAgain()">คัดลอกข้อความ</button>
+      <a class="bigbtn sec" href="line://nv/chat">เปิด LINE</a>
+    </div>
   </div>
 </div>
 
 <script>
 /* ===================== ตั้งค่า ===================== */
-const LIFF_ID = '2012549187-i2v5STQr';
+// GAS_URL = ลิงก์ Web app (/exec) · LIFF ID ไม่ต้องใส่ ระบบถามจาก Apps Script เอง (ใส่เองก็ได้)
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxxx6GiOcMxg3ALNiiX0fmoe5-2ukUfMh2XxpVVFetDHDX_4u739vWiq5QcCZLBgqLYyg/exec';
+let LIFF_ID = '';
 // โหมดทดลอง: ?demo=1 หรือเปิดนอก LINE (โหลด LINE SDK ไม่ได้ เช่น ตัวพรีวิวไฟล์)
 const DEMO = !!window.SIM_API || /[?&]demo=1/.test(location.search) || typeof window.DEMO_DATA !== 'undefined' || typeof liff === 'undefined';
 
@@ -246,19 +272,48 @@ async function api(body) {
   return res.json();
 }
 
+const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+async function liffId() {
+  if (LIFF_ID) return LIFF_ID;
+  const c = ls.get('po_liff'); if (c) return (LIFF_ID = c);
+  const r = await (await fetch(GAS_URL + '?cfg=1')).json();
+  if (!r.liffId) throw new Error('ยังไม่ได้ตั้ง LIFF_ID ใน Script Properties');
+  ls.set('po_liff', r.liffId); return (LIFF_ID = r.liffId);
+}
+let inGroup = true, cacheKey = '';
 async function start() {
   if (DEMO) { $('demoBadge').classList.remove('hidden'); $('demoBadge').style.display = 'inline-block'; }
   try {
-    if (!DEMO) { await liff.init({ liffId: LIFF_ID }); if (!liff.isLoggedIn()) return liff.login({ redirectUri: location.href }); }
+    if (!DEMO) {
+      await liff.init({ liffId: await liffId() });
+      if (!liff.isLoggedIn()) return liff.login({ redirectUri: location.href });
+      const ctx = liff.getContext(); inGroup = !!(ctx && ctx.type === 'group');
+      const tok = liff.getDecodedIDToken(); cacheKey = tok && tok.sub ? 'po_m_' + tok.sub.slice(-12) : '';
+    }
     Q = new URLSearchParams(window.SIM_QUERY || location.search);
+    // เปิดเร็ว: ใช้ข้อมูลจากครั้งก่อนแสดงก่อน แล้วอัปเดตเบื้องหลัง (ส่งจริงตรวจที่เซิร์ฟเวอร์ทุกครั้ง)
+    const old = cacheKey && ls.get(cacheKey);
+    if (old) { try { M = JSON.parse(old); if (M && M.user) afterLogin(); else M = null; } catch (e) { M = null; } }
+    $('loadStep').textContent = 'กำลังโหลดข้อมูล…';
     const out = await api({ action: 'init' });
     if (!out.ok) throw new Error(out.error);
+    if (cacheKey && out.user) ls.set(cacheKey, JSON.stringify(out));
+    if (M) { refreshData(out); return; }
     M = out;
     if (!M.user) return showRegister();
     afterLogin();
   } catch (e) {
+    if (M) return;   // มีข้อมูลเก่าแสดงอยู่แล้ว
+    if (LIFF_ID && !DEMO) ls.set('po_liff', '');
     $('vLoading').innerHTML = '<h1 style="color:var(--mag)">เปิดฟอร์มไม่ได้</h1><div class="who">' + esc(e.message) + '</div>';
   }
+}
+/** ได้ข้อมูลใหม่หลังแสดงหน้าจาก cache: อัปเดตโดยไม่ล้างสิ่งที่กรอกไว้ */
+function refreshData(out) {
+  if (!out.user) { M = out; return showRegister(); }
+  Object.assign(M, out);
+  const dl = $('supList'); if (dl && M.suppliers) { dl.innerHTML = ''; M.suppliers.forEach(n => { const o = document.createElement('option'); o.value = n; dl.appendChild(o); }); }
+  if (kind === 'po' && !$('vForm').classList.contains('hidden') && typeof renderPOs === 'function') renderPOs();
 }
 function afterLogin() {
   $('whoT').textContent = 'ผู้ขอ: ' + M.user.name + ' · ' + M.user.team;
@@ -293,6 +348,7 @@ async function register() {
 /* ===================== เปิดฟอร์ม ===================== */
 function resetForm() {
   submitId = newId();
+  $('outsideWarn').classList.toggle('hidden', DEMO || inGroup);
   $('who').textContent = 'ผู้ขอ: ' + M.user.name + ' · ' + M.user.team;
   const dl = $('supList'); dl.innerHTML = ''; M.suppliers.forEach(n => { const o = document.createElement('option'); o.value = n; dl.appendChild(o); });
   const d = $('dept'); d.innerHTML = ''; Object.keys(M.keys).forEach(k => d.add(new Option(k, k))); fillKeys();
@@ -363,7 +419,8 @@ async function cancelPO() {
     const out = await api({ action: 'cancelPO', poNumber: editRef.poNumber, batchId: editRef.batchId, submitId });
     if (!out.ok) throw new Error(out.error);
     const posted = await postToGroup(out.chatText);
-    $('doneMsg').innerHTML = '<b>' + esc(out.id) + '</b> ยกเลิกแล้ว' + (posted ? '<br>การ์ดสถานะจะขึ้นในกลุ่ม' : '<br>วางข้อความนี้ในกลุ่ม: <b>' + esc(out.chatText) + '</b>') +
+    showPaste(posted ? '' : out.chatText);
+    $('doneMsg').innerHTML = '<b>' + esc(out.id) + '</b> ยกเลิกแล้ว' + (posted ? '<br>การ์ดสถานะจะขึ้นในกลุ่ม' : '') +
       '<br><br><span style="color:var(--muted)">อย่าลืมยกเลิก PO ใน FlowAccount ด้วย</span>';
     show('vDone');
   } catch (e) { $('formErr').textContent = e.message; }
@@ -620,8 +677,8 @@ async function submitForm() {
     const to = kind === 'pr' ? (payload.assignee || 'จัดซื้อคนไหนก็ได้') + ' (เปิด PO)' : '';
     $('doneMsg').innerHTML = (kind === 'pr' ? '<b>' + esc(out.id) + '</b> ส่งให้ <b>' + esc(to) + '</b>'
         : (out.batches || [{ id: out.id, approver: '', count: out.count }]).map(bt => '<b>' + esc(bt.id) + '</b> · ' + bt.count + ' ใบ → <b>' + esc(bt.approver) + '</b>').join('<br>')) +
-      (posted ? '<br>การ์ดจะขึ้นในกลุ่มจัดซื้อ' :
-        '<br><br><span style="color:var(--yel)">ยังไม่ได้ส่งเข้ากลุ่ม</span><br>คัดลอกข้อความนี้ไปวางในกลุ่มจัดซื้อ:<br><b>' + esc(out.chatText) + '</b>');
+      (posted ? '<br>การ์ดจะขึ้นในกลุ่มจัดซื้อ' : '');
+    showPaste(posted ? '' : out.chatText);
     show('vDone');
     if (posted && !DEMO && liff.isInClient()) setTimeout(() => liff.closeWindow(), 1500);
   } catch (e) {
@@ -629,6 +686,19 @@ async function submitForm() {
     $('submitBtn').disabled = false; $('submitBtn').textContent = label;
   }
 }
+/* ส่งเข้ากลุ่มไม่ได้ (เปิดบนคอม/นอกกลุ่ม) → คัดลอกให้อัตโนมัติ + ปุ่มคัดลอกตัวใหญ่ */
+let pasteText = '';
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); return true; } catch (e) {}
+  try { const a = document.createElement('textarea'); a.value = t; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select();
+    const ok = document.execCommand('copy'); a.remove(); return ok; } catch (e) { return false; }
+}
+async function showPaste(t) {
+  pasteText = t; $('donePaste').classList.toggle('hidden', !t); if (!t) return;
+  $('copyText').textContent = t;
+  $('copyState').textContent = (await copyText(t)) ? 'คัดลอกให้แล้ว' : 'กดปุ่มคัดลอกด้านล่าง';
+}
+async function copyAgain() { $('copyState').textContent = (await copyText(pasteText)) ? 'คัดลอกแล้ว ✓' : 'คัดลอกไม่ได้ ลากคลุมข้อความแล้วคัดลอกเอง'; }
 /** เปิดจากกลุ่ม → ส่งเข้ากลุ่มเลย · เปิดจาก Rich menu (1:1) → หน้าต่างแชร์ให้เลือกกลุ่ม */
 async function postToGroup(text) {
   if (window.SIM_POST) return window.SIM_POST(text);
@@ -648,17 +718,41 @@ const thM = ym => { const [y, m] = ym.split('-').map(Number); return TH_MONTH[m 
 const thD = s => { if (!s) return '-'; const [y, m, d] = s.split('-').map(Number); return d + '/' + m + '/' + String(y + 543).slice(-2); };
 const baht = n => '฿' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 
+let mine = [];
 async function openMine() {
-  show('vMine'); $('mineWho').textContent = M.user.name; $('mineList').innerHTML = '<div class="who">กำลังโหลด…</div>';
+  show('vMine'); $('mineWho').textContent = M.user.name + ' · งานค้าง และงาน 30 วันล่าสุด'; $('mineList').innerHTML = '<div class="sk"></div><div class="sk"></div>';
   try {
     const r = await api({ action: 'mine' });
     if (!r.ok) throw new Error(r.error);
-    $('mineList').innerHTML = r.lines.length ? r.lines.map(l => {
-      const c = /รอจ่าย/.test(l) ? 'var(--cyan)' : /อนุมัติ/.test(l) ? 'var(--yel)' : 'var(--ink)';
-      return '<div style="border:1px solid var(--line);border-left:5px solid ' + c + ';background:#fff;border-radius:10px;padding:11px 12px;margin-bottom:8px;font-size:14px">' + esc(l) + '</div>';
-    }).join('') : '<div class="who" style="font-size:15px">ไม่มีรายการค้าง ✅</div>';
+    mine = r.items || (r.lines || []).map(l => ({ ref: l.split(' ')[0], text: l, open: true, posted: true }));
+    $('mineList').innerHTML = mine.length ? mine.map((it, i) => {
+      const c = !it.open ? '#CFCFCF' : /รอจ่าย/.test(it.text) ? '#74B9FF' : /รออนุมัติ|รอจัดซื้อ|เสนอ/.test(it.text) ? '#F5A623' : 'var(--ink)';
+      return '<div class="mi" style="border-left:5px solid ' + c + '"><div>' + esc(it.text) +
+        (!it.posted ? '<span class="badge" style="background:#FFE3E3;color:#A3004F">การ์ดยังไม่ขึ้น</span>' : '') +
+        (!it.open ? '<span class="badge" style="background:#EEE;color:#555">ปิดแล้ว</span>' : '') + '</div>' +
+        (it.sub ? '<div class="s">' + esc(it.sub) + '</div>' : '') +
+        '<div class="acts"><button onclick="toggleHist(' + i + ')">🕘 ประวัติ</button><button onclick="recall(' + i + ')">' + (it.posted ? 'เรียกการ์ดในกลุ่ม' : 'ส่งการ์ดเข้ากลุ่ม') + '</button></div>' +
+        '<div class="tl hidden" id="tl' + i + '"></div></div>';
+    }).join('') : '<div class="who" style="font-size:15px">ไม่มีรายการ ✅</div>';
   } catch (e) { $('mineList').innerHTML = '<div class="err">' + esc(e.message) + '</div>'; }
 }
+async function toggleHist(i) {
+  const el = $('tl' + i); if (!el.classList.contains('hidden')) return el.classList.add('hidden');
+  el.classList.remove('hidden'); el.innerHTML = '<span>กำลังโหลด…</span>';
+  try {
+    const r = await api({ action: 'history', ref: mine[i].ref });
+    if (!r.ok) throw new Error(r.error);
+    el.innerHTML = r.rows.length ? r.rows.map(x => '<div><span>' + esc(x.at) + '</span> · <b>' + esc(x.action) + '</b>' + (x.to ? ' → ' + esc(x.to) : '') +
+      '<br><span>' + esc(x.by) + (x.note ? ' · ' + esc(x.note) : '') + '</span></div>').join('') : '<span>ยังไม่มีประวัติ (งานก่อนเปิดระบบประวัติ)</span>';
+  } catch (e) { el.innerHTML = '<span style="color:var(--mag)">' + esc(e.message) + '</span>'; }
+}
+async function recall(i) {
+  const t = mine[i].ref;
+  if (await postToGroup(t)) { if (!DEMO && liff.isInClient()) liff.closeWindow(); return; }
+  const ok = await copyText(t);
+  alertBox(ok ? 'คัดลอก "' + t + '" แล้ว · ไปวางในกลุ่มจัดซื้อ บอทจะส่งการ์ดให้' : 'พิมพ์ "' + t + '" ในกลุ่มจัดซื้อ บอทจะส่งการ์ดให้');
+}
+function alertBox(t) { const d = document.createElement('div'); d.className = 'warn'; d.style.cssText = 'position:sticky;bottom:12px;margin-top:12px'; d.textContent = t; $('mineList').appendChild(d); setTimeout(() => d.remove(), 5000); }
 function openReport() {
   if (!M.user.canReport) { $('typeErr').textContent = 'คุณไม่มีสิทธิ์ดูรายงาน'; return show('vType'); }
   show('vReport'); loadReport('');
@@ -728,7 +822,14 @@ function demoApi(body) {
     settings: { jobPattern: '^[A-Z]{3}\\d{9}$', poPattern: '^PO\\d{12}$' } };
   if (body.action === 'init') return Promise.resolve(Object.assign({ ok: true }, D));
   if (body.action === 'report') return Promise.resolve(Object.assign({ ok: true }, DEMO_REPORT));
-  if (body.action === 'mine') return Promise.resolve({ ok: true, name: D.user.name, lines: ['PR-0012 รอ ทราย-จัดซื้อ เปิด PO', 'PO202611090004 รอ มุก อนุมัติ ฿5,350.00', 'PO202611070002 อนุมัติแล้ว รอจ่าย ฿42,600.00'] });
+  if (body.action === 'mine') return Promise.resolve({ ok: true, name: D.user.name, lines: [], items: [
+    { ref: 'PR-0012', text: 'PR-0012 · กำลังดำเนินการ (ของ คิตตี้)', sub: 'ถุงผ้าแจกงานอีเวนต์', open: true, posted: true },
+    { ref: 'PO202611090004', text: 'PO202611090004 · รออนุมัติ · ฿5,350.00', sub: 'บริษัท ควอลิตี้ ลาเบล จำกัด · ป้ายผ้า', open: true, posted: false },
+    { ref: 'PO202611070002', text: 'PO202611070002 · จ่ายแล้ว · ฿42,600.00', sub: 'บริษัท ที คัลเจอร์ จำกัด', open: false, posted: true }] });
+  if (body.action === 'history') return Promise.resolve({ ok: true, ref: body.ref, rows: [
+    { at: '9/11 10:02', by: 'คิตตี้', action: 'เปิด PR', to: 'รอจัดซื้อรับเรื่อง', note: 'สั่งของ' },
+    { at: '9/11 10:15', by: 'ทราย-จัดซื้อ', action: 'รับเรื่อง', to: 'กำลังดำเนินการ', note: '' },
+    { at: '9/11 14:40', by: 'แก้ในชีต', action: 'แก้ assigneeName', to: 'มุก', note: 'แก้มือในชีต PR' }] });
   if (body.action === 'submitPR') return Promise.resolve({ ok: true, id: 'PR-DEMO', chatText: '#PR PR-DEMO' });
   if (body.action === 'submitPO') { const names = [...new Set(body.pos.map(p => p.approver))]; return Promise.resolve({ ok: true, id: names.map((n, i) => 'B-DEMO' + (i + 1)).join(' '), count: body.pos.length, batches: names.map((n, i) => ({ id: 'B-DEMO' + (i + 1), approver: n, count: body.pos.filter(p => p.approver === n).length })), chatText: '#PO B-DEMO' }); }
   return Promise.resolve({ ok: false, error: 'demo' });
