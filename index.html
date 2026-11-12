@@ -296,6 +296,7 @@ async function api(body) {
   if (window.SIM_API) return window.SIM_API(body);
   if (DEMO) return demoApi(body);
   body.idToken = liff.getIDToken();
+  try { body.accessToken = liff.getAccessToken(); } catch (e) {}
   const res = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
   return res.json();
 }
@@ -317,6 +318,10 @@ async function start() {
       if (!liff.isLoggedIn()) return liff.login({ redirectUri: location.href });
       const ctx = liff.getContext(); inGroup = !!(ctx && ctx.type === 'group');
       const tok = liff.getDecodedIDToken(); cacheKey = tok && tok.sub ? 'po_m_' + tok.sub.slice(-12) : '';
+      // เปิดบนคอม/เบราว์เซอร์: ล็อกอินเก่าค้างไว้จน token หมดอายุ → ล็อกอินใหม่ก่อนเริ่มกรอก (กันวนซ้ำ 2 นาที)
+      if (!liff.isInClient() && (!tok || tok.exp * 1000 < Date.now() + 10 * 60000) && Date.now() - Number(ls.get('po_relogin') || 0) > 120000) {
+        ls.set('po_relogin', String(Date.now())); liff.logout(); return liff.login({ redirectUri: location.href });
+      }
     }
     Q = new URLSearchParams(window.SIM_QUERY || location.search);
     // เปิดเร็ว: ใช้ข้อมูลจากครั้งก่อนแสดงก่อน แล้วอัปเดตเบื้องหลัง (ส่งจริงตรวจที่เซิร์ฟเวอร์ทุกครั้ง)
@@ -333,9 +338,10 @@ async function start() {
     if (!M.user) return showRegister();
     afterLogin();
   } catch (e) {
-    if (M) return;   // มีข้อมูลเก่าแสดงอยู่แล้ว
+    if (M) { $('typeErr').textContent = $('formErr').textContent = 'เชื่อมต่อระบบไม่ได้: ' + e.message; if (/ยืนยันตัวตน/.test(e.message)) reloginBox($('formErr').offsetParent ? $('formErr') : $('typeErr')); return; }
     if (LIFF_ID && !DEMO) ls.set('po_liff', '');
     $('vLoading').innerHTML = '<h1 style="color:var(--mag)">เปิดฟอร์มไม่ได้</h1><div class="who">' + esc(e.message) + '</div>';
+    if (/ยืนยันตัวตน/.test(e.message)) reloginBox($('vLoading'));
   }
 }
 /** ได้ข้อมูลใหม่หลังแสดงหน้าจาก cache: อัปเดตโดยไม่ล้างสิ่งที่กรอกไว้ */
@@ -351,6 +357,7 @@ function afterLogin() {
   $('btPO').classList.toggle('hidden', !M.user.canPO);
   $('btRP').classList.toggle('hidden', !M.user.canReport);
   $('btPAY').classList.toggle('hidden', !M.user.canPay);
+  if (restoreDraft()) return;
   if (Q.get('view') === 'report') return openReport();
   if (Q.get('view') === 'pay') return openPay(Q.get('po') || '');
   if (Q.get('view') === 'mine') return openMine();
@@ -750,8 +757,31 @@ async function submitForm() {
     if (posted && !DEMO && liff.isInClient()) setTimeout(() => liff.closeWindow(), 1500);
   } catch (e) {
     $('formErr').textContent = 'ส่งไม่สำเร็จ: ' + e.message;
+    if (/ยืนยันตัวตน/.test(e.message)) reloginBox($('formErr'));
     $('submitBtn').disabled = false; $('submitBtn').textContent = label;
   }
+}
+/* ---- ล็อกอินหมดเวลา: เก็บสิ่งที่กรอกไว้ → ล็อกอินใหม่ → กู้คืนให้อัตโนมัติ ---- */
+function reloginBox(el) {
+  if (DEMO || !el) return;
+  const b = document.createElement('button'); b.className = 'bigbtn'; b.style.marginTop = '8px'; b.textContent = 'เข้าสู่ระบบใหม่ (ข้อมูลที่กรอกไม่หาย)';
+  b.onclick = () => { saveDraft(); ls.set('po_relogin', String(Date.now())); liff.logout(); liff.login({ redirectUri: location.href }); };
+  el.appendChild(b);
+}
+function saveDraft() {
+  if (kind !== 'pr' && kind !== 'po') return;
+  const fields = {}; document.querySelectorAll('#vForm input[id], #vForm select[id], #vForm textarea[id]').forEach(e => { fields[e.id] = e.type === 'checkbox' ? e.checked : e.value; });
+  ls.set('po_draft', JSON.stringify({ t: Date.now(), kind, pos, editRef, items, prType, purpose, urgency, fields }));
+}
+function restoreDraft() {
+  let d = null; try { d = JSON.parse(ls.get('po_draft') || 'null'); } catch (e) {}
+  ls.set('po_draft', '');
+  if (!d || Date.now() - d.t > 30 * 60000) return false;
+  if (d.kind === 'po') { openPO(''); pos = d.pos; editRef = d.editRef; renderPOs(); }
+  else { openPR(); setPrType(d.prType); setPurpose(d.purpose); setUrg(d.urgency); items = d.items; renderItems(); }
+  Object.keys(d.fields || {}).forEach(id => { const e = $(id); if (!e || e.type === 'file') return; if (e.type === 'checkbox') e.checked = d.fields[id]; else e.value = d.fields[id]; });
+  $('formErr').textContent = 'กู้ข้อมูลที่กรอกไว้แล้ว ✓ ตรวจแล้วกดส่งได้เลย';
+  return true;
 }
 function again() { if (kind === 'po') openPO(); else if (kind === 'pay') openPay(); else openPR(); }
 /* ---- หน้าทำจ่าย: จ่ายทีละใบ + แนบลิงก์เอกสารจ่าย → ส่งสรุปรอบเข้ากลุ่ม ---- */
@@ -810,7 +840,7 @@ async function payOne(i) {
     card.querySelectorAll('input,.go,.err').forEach(e => e.remove());
     card.insertAdjacentHTML('beforeend', '<div style="margin-top:6px;font-weight:600;color:#2E7D32">✓ จ่ายแล้ว · ' + baht2(amt) + (link ? ' · แนบเอกสารแล้ว' : '') + '</div>');
     updPayBar();
-  } catch (e) { b.disabled = false; b.classList.remove('cf'); b.textContent = 'จ่ายแล้ว'; $('pe' + i).textContent = e.message; }
+  } catch (e) { b.disabled = false; b.classList.remove('cf'); b.textContent = 'จ่ายแล้ว'; $('pe' + i).textContent = e.message; if (/ยืนยันตัวตน/.test(e.message)) reloginBox($('pe' + i)); }
 }
 async function sendPaySummary() {
   if (!payRound || !paidNow.length) return;
