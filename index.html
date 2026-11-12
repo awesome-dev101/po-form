@@ -42,6 +42,22 @@
   .item { background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px; margin-top:8px; }
   .item-h { display:flex; justify-content:space-between; color:var(--muted); font-size:12px; margin-bottom:6px; }
   .item-h button { background:none; border:0; color:var(--mag); font-family:inherit; font-size:12px; }
+  .pay { background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px; margin-top:8px; }
+  .pay.done { opacity:.55; } .pay.hl { border:2px solid var(--ink); }
+  .pay .top2 { display:flex; justify-content:space-between; gap:8px; font-size:14px; } .pay .amt { font-weight:700; white-space:nowrap; }
+  .pay .s { color:var(--muted); font-size:12px; margin-top:2px; }
+  .pay input { margin-top:6px; }
+  .pay .go { width:100%; margin-top:8px; padding:11px; border:0; border-radius:10px; background:var(--ink); color:#fff; font-family:inherit; font-size:15px; font-weight:600; }
+  .pay .go.cf { background:#F5A623; color:var(--ink); }
+  .pgh { font-size:13px; font-weight:700; margin:16px 0 2px; } .pgh.red { color:#C0392B; }
+  .paybar { position:sticky; bottom:0; background:var(--bg); padding:10px 0 4px; margin-top:12px; }
+  .nav3 { display:flex; gap:8px; max-width:420px; margin:18px auto 0; } .nav3 button { flex:1; padding:11px 6px; border-radius:10px; border:1px solid var(--line); background:#fff; font-family:inherit; font-size:13.5px; color:var(--ink); }
+  .pit { display:grid; grid-template-columns: 1fr 64px 58px 84px 22px; gap:6px; margin-top:6px; align-items:center; }
+  .pit input { padding:9px 8px; font-size:14px; }
+  .pit .x { background:none; border:0; color:var(--mag); font-size:16px; font-family:inherit; padding:0; }
+  .pit-h { display:grid; grid-template-columns: 1fr 64px 58px 84px 22px; gap:6px; font-size:11px; color:var(--muted); margin-top:4px; }
+  .linkbtn { background:none; border:0; color:#0089B3; font-family:inherit; font-size:13px; padding:6px 0; cursor:pointer; }
+  @media (max-width:380px) { .pit, .pit-h { grid-template-columns: 1fr 52px 48px 70px 20px; } }
   .add { width:100%; margin-top:8px; padding:11px; border:1px dashed #BDBDBD; border-radius:10px; background:#fff; color:#444; font-family:inherit; font-size:14px; }
   .hint { margin-top:6px; font-size:12px; color:#0089B3; }
   .err { margin-top:5px; font-size:12px; color:var(--mag); }
@@ -139,6 +155,7 @@
       <button id="btPR" onclick="openPR()">ขอซื้อ (PR)<small>สั่งงานจัดซื้อ: สั่งของ หรือให้ช่วยหาของ · ไม่ต้องอนุมัติ</small></button>
       <button id="btPO" style="border-left-color:var(--yel)" onclick="openPO()">ขออนุมัติ PO<small>เปิด PO ใน FlowAccount แล้ว · ส่งได้ครั้งละหลายใบ</small></button>
       <button id="btMY" style="border-left-color:var(--grn)" onclick="openMine()">งานของฉัน<small>รอฉันทำ หรือที่ฉันส่งไปแล้วยังไม่จบ</small></button>
+      <button id="btPAY" class="hidden" style="border-left-color:#81C784" onclick="openPay()">ทำจ่าย<small>PO ที่อนุมัติแล้วรอจ่าย · แนบลิงก์เอกสารจ่าย · ส่งสรุปเข้ากลุ่ม</small></button>
       <button id="btRP" class="hidden" style="border-left-color:var(--cyan)" onclick="openReport()">รายงานจัดซื้อ<small>รออนุมัติ · รอจ่าย · PR ค้าง</small></button>
     </div>
     <div id="typeErr" class="err"></div>
@@ -233,6 +250,15 @@
     <div id="mineList" style="margin-top:14px"></div>
   </div>
 
+  <div id="vPay" class="hidden">
+    <button class="back" onclick="show('vType')">‹ กลับ</button>
+    <h1 id="payTitle">ทำจ่าย</h1>
+    <div class="who" id="payWho"></div>
+    <div id="payList" style="margin-top:6px"></div>
+    <div class="paybar hidden" id="payBar"><button class="bigbtn" style="max-width:none" onclick="sendPaySummary()" id="payBtn">เสร็จแล้ว ส่งสรุป</button></div>
+    <div id="payErr" class="err"></div>
+  </div>
+
   <div id="vDone" class="hidden center">
     <div style="width:64px;height:64px;border-radius:50%;background:var(--grn);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:32px">✓</div><h1>ส่งแล้ว</h1>
     <div id="doneMsg" class="who" style="font-size:14px;line-height:1.7"></div>
@@ -242,6 +268,7 @@
       <button class="bigbtn" onclick="copyAgain()">คัดลอกข้อความ</button>
       <a class="bigbtn sec" href="line://nv/chat">เปิด LINE</a>
     </div>
+    <div class="nav3" id="doneNav"><button onclick="again()">ส่งอีกใบ</button><button onclick="show('vType')">กลับเมนู</button><button onclick="openMine()">งานของฉัน</button></div>
   </div>
 </div>
 
@@ -259,7 +286,8 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&a
 const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
 const $ = id => document.getElementById(id);
 function show(v) {
-  ['vLoading','vRegister','vType','vForm','vReport','vMine','vDone'].forEach(x => $(x).classList.toggle('hidden', x !== v));
+  ['vLoading','vRegister','vType','vForm','vReport','vMine','vPay','vDone'].forEach(x => $(x).classList.toggle('hidden', x !== v));
+  if (v === 'vDone') $('doneNav').firstElementChild.textContent = kind === 'pay' ? 'หน้าทำจ่าย' : 'ส่งอีกใบ';
   document.body.classList.toggle('light', v === 'vReport');
 }
 function clearErr() { $('formErr').textContent = ''; }
@@ -292,7 +320,9 @@ async function start() {
     }
     Q = new URLSearchParams(window.SIM_QUERY || location.search);
     // เปิดเร็ว: ใช้ข้อมูลจากครั้งก่อนแสดงก่อน แล้วอัปเดตเบื้องหลัง (ส่งจริงตรวจที่เซิร์ฟเวอร์ทุกครั้ง)
-    const old = cacheKey && ls.get(cacheKey);
+    // ลิงก์ที่ต้องใช้ข้อมูลล่าสุด (เลือก PR / แก้ PO / ทำจ่าย) → รอข้อมูลสดเสมอ ไม่ใช้ของเก่า
+    const fresh = Q.get('pr') || Q.get('edit') || Q.get('view') === 'pay';
+    const old = !fresh && cacheKey && ls.get(cacheKey);
     if (old) { try { M = JSON.parse(old); if (M && M.user) afterLogin(); else M = null; } catch (e) { M = null; } }
     $('loadStep').textContent = 'กำลังโหลดข้อมูล…';
     const out = await api({ action: 'init' });
@@ -320,7 +350,9 @@ function afterLogin() {
   $('btPR').classList.toggle('hidden', !M.user.canPR);
   $('btPO').classList.toggle('hidden', !M.user.canPO);
   $('btRP').classList.toggle('hidden', !M.user.canReport);
+  $('btPAY').classList.toggle('hidden', !M.user.canPay);
   if (Q.get('view') === 'report') return openReport();
+  if (Q.get('view') === 'pay') return openPay(Q.get('po') || '');
   if (Q.get('view') === 'mine') return openMine();
   if (!M.user.canPR && !M.user.canPO) { $('typeErr').textContent = 'บัญชีนี้ยังไม่มีสิทธิ์เปิด PR หรือ PO ติดต่อผู้ดูแลระบบ'; return show('vType'); }
   const t = Q.get('type');
@@ -369,10 +401,12 @@ function openPR() {
 }
 /* ---- ขออนุมัติ PO หลายใบ (ผู้อนุมัติคนเดียว) ---- */
 let pos = [];
+function newIt(x) { x = x || {}; return { name: x.name || '', qty: x.qty === 0 || x.qty ? String(x.qty) : '', unit: x.unit || '', amount: x.amount === 0 || x.amount ? String(x.amount) : '' }; }
+function cleanIts(p) { return (p.items || []).filter(it => String(it.name).trim() || it.qty !== '' || it.amount !== ''); }
 function newPO(prev) {
   return prev ? { prId: '', poNumber: '', purpose: prev.purpose, dept: prev.dept, descKey: prev.descKey, officeDetail: prev.officeDetail,
-      lineName: prev.lineName, jobNo: prev.jobNo, noJob: prev.noJob, descCustom: prev.descCustom, supplier: '', total: '', due: '', qt: '', noQT: false, pay: prev.pay, link: '', recv: prev.recv, showRecv: prev.showRecv }
-    : { prId: '', poNumber: '', purpose: 'order', dept: Object.keys(M.keys)[0], descKey: '', officeDetail: '', lineName: '', jobNo: '', noJob: false, descCustom: '', supplier: '', total: '', due: '', qt: '', noQT: false, pay: 'run', link: '' };
+      lineName: prev.lineName, jobNo: prev.jobNo, noJob: prev.noJob, descCustom: prev.descCustom, supplier: '', total: '', due: '', qt: '', noQT: false, pay: prev.pay, link: '', recv: prev.recv, showRecv: prev.showRecv, items: [newIt()] }
+    : { prId: '', poNumber: '', purpose: 'order', dept: Object.keys(M.keys)[0], descKey: '', officeDetail: '', lineName: '', jobNo: '', noJob: false, descCustom: '', supplier: '', total: '', due: '', qt: '', noQT: false, pay: 'run', link: '', items: [newIt()] };
 }
 function openPO(prId) {
   kind = 'po'; resetForm(); editRef = null;
@@ -395,7 +429,8 @@ async function openEdit(poNumber, batchId) {
     openPO(''); editRef = { poNumber: d.poNumber, batchId: d.batchId };
     const p = newPO(); Object.assign(p, { prId: d.prId || '', poNumber: d.poNumber, purpose: d.purpose === 'office' ? 'office' : 'order', supplier: d.supplier,
       total: String(d.totalThb), due: d.payMode === 'urgent' ? '' : d.dueDate, dueTouched: true, qt: d.qtRef === 'ไม่มี' ? '' : d.qtRef, noQT: d.qtRef === 'ไม่มี',
-      pay: d.payMode || 'run', link: d.poLink || '', approver: d.approverName, apprTouched: true, what: d.itemDesc || '', editProj: true });
+      pay: d.payMode || 'run', link: d.poLink || '', approver: d.approverName, apprTouched: true, editProj: true,
+      items: d.items && d.items.length ? d.items.map(newIt) : [newIt({ name: d.itemDesc || '', amount: d.totalThb })] });
     if (p.purpose === 'order') {
       p.lineName = String(d.project).replace(/^line@/, '');
       const j = String(d.detail).replace(/^Job no\.\s*/, ''); p.noJob = j === 'ยังไม่มีเลข'; p.jobNo = p.noJob ? '' : j;
@@ -431,7 +466,8 @@ function applyPR(p, prId) {
   const pr = M.openPRs.find(x => x.prId === prId); p.prId = pr ? prId : '';
   p.editProj = false;
   if (!pr) return;
-  p.purpose = pr.purpose; p.supplier = pr.supplier || p.supplier; p.what = pr.what || p.what || '';
+  p.purpose = pr.purpose; p.supplier = pr.supplier || p.supplier;
+  if (pr.items && pr.items.length && !cleanIts(p).length) p.items = pr.items.map(newIt);   // ดึงรายการของจาก PR (แก้/เติมยอดต่อได้)
   if (pr.purpose === 'order') {
     p.lineName = String(pr.project).replace(/^line@/, '');
     const j = String(pr.detail).replace(/^Job no\.\s*/, ''); p.noJob = j === 'ยังไม่มีเลข'; p.jobNo = p.noJob ? '' : j;
@@ -470,7 +506,14 @@ function renderPOs() {
           '<label>รายละเอียด</label><div class="pf"><span>Job no.</span><input data-f="jobNo" placeholder="TSH102026011"' + (p.noJob ? ' disabled' : '') + '></div>' +
           '<label class="chk"><input type="checkbox" data-f="noJob"' + (p.noJob ? ' checked' : '') + '> ยังไม่มีเลขงาน</label>')) +
       '<label>ผู้จำหน่าย <span class="req">*</span></label><input data-f="supplier" list="supList" placeholder="พิมพ์ค้นหา">' +
-      '<label>สั่งอะไร <span class="req">*</span></label><input data-f="what" maxlength="200" placeholder="เช่น ผ้า Cotton 32 สีดำ 50 กก. / ถุงผ้าสกรีน 200 ใบ">' +
+      '<label>รายการของ <span class="req">*</span></label><div class="pit-h"><span>ชื่อของ</span><span>จำนวน</span><span>หน่วย</span><span>ยอด (บาท)</span><span></span></div>' +
+      p.items.map((it, k) => '<div class="pit"><input data-it="' + k + '" data-k="name" maxlength="80" placeholder="' + (k ? 'รายการถัดไป' : 'เช่น ผ้า Cotton 32 สีดำ') + '">' +
+        '<input data-it="' + k + '" data-k="qty" type="number" step="any" inputmode="decimal" placeholder="50">' +
+        '<input data-it="' + k + '" data-k="unit" maxlength="20" placeholder="กก.">' +
+        '<input data-it="' + k + '" data-k="amount" type="number" step="0.01" inputmode="decimal" placeholder="ถ้ามี">' +
+        (p.items.length > 1 ? '<button class="x" data-itdel="' + k + '" aria-label="ลบแถว">×</button>' : '<span></span>') + '</div>').join('') +
+      '<button class="linkbtn" data-itadd>+ เพิ่มรายการ</button>' +
+      '<div class="sugg" data-itnote>' + itNote(p) + '</div>' +
       '<label>เลขอ้างอิง QT</label><input data-f="qt" placeholder="QT202610060004"' + (p.noQT ? ' disabled' : '') + ' autocapitalize="characters">' +
       '<label class="chk"><input type="checkbox" data-f="noQT"' + (p.noQT ? ' checked' : '') + '> ไม่มีเลข QT</label>' +
       '<label>ยอดรวมตาม PO (บาท) <span class="req">*</span></label><input data-f="total" type="number" step="0.01" inputmode="decimal" placeholder="0.00">' +
@@ -498,6 +541,13 @@ function renderPOs() {
         if (f === 'supplier' || f === 'recv') { autoDue(p); const n = d.querySelector('[data-paynote]'); if (n) n.innerHTML = payNote(p); const du = d.querySelector('[data-f="due"]'); if (du) du.value = p.due || ''; }
       });
     });
+    d.querySelectorAll('[data-it]').forEach(el => {
+      const it = p.items[+el.dataset.it], k = el.dataset.k; el.value = it[k] || '';
+      el.addEventListener('input', () => { clearErr(); it[k] = el.value; const n = d.querySelector('[data-itnote]'); if (n) n.innerHTML = itNote(p); });
+    });
+    d.querySelectorAll('[data-itdel]').forEach(bt => bt.onclick = () => { p.items.splice(+bt.dataset.itdel, 1); renderPOs(); });
+    const ia = d.querySelector('[data-itadd]'); if (ia) ia.onclick = () => { if (p.items.length >= 20) return; p.items.push(newIt()); renderPOs(); };
+    d.addEventListener('click', e => { if (e.target.hasAttribute('data-usesum')) { p.total = String(itSum(p)); renderPOs(); } });
     d.querySelectorAll('[data-p]').forEach(bt => bt.onclick = () => { p.purpose = bt.dataset.p; renderPOs(); });
     const ed = d.querySelector('[data-edit]'); if (ed) ed.onclick = () => { p.editProj = true; renderPOs(); };
     d.querySelectorAll('[data-pay]').forEach(bt => bt.onclick = () => { p.pay = bt.dataset.pay; autoDue(p); renderPOs(); });
@@ -509,6 +559,16 @@ function renderPOs() {
     box.appendChild(d);
   });
   sumPOs();
+}
+/* ---- รายการของใน PO: แต่ละแถวใส่ จำนวน หรือ ยอด อย่างใดอย่างหนึ่ง ---- */
+function itSum(p) { return Math.round(cleanIts(p).reduce((t, it) => t + (Number(it.amount) || 0), 0) * 100) / 100; }
+function itNote(p) {
+  const s = itSum(p), its = cleanIts(p);
+  let t = 'แต่ละแถวใส่ <b>จำนวน</b> หรือ <b>ยอด</b> อย่างใดอย่างหนึ่ง · กรอกรวมเป็นแถวเดียวได้';
+  if (s > 0) t += '<br>รวมยอดแถว ฿' + s.toLocaleString('en-US', { minimumFractionDigits: 2 }) + (Number(p.total) !== s ? ' · <a data-usesum style="color:#0089B3;cursor:pointer">ใช้เป็นยอดรวม</a>' : ' ✓');
+  if (its.length === 1 && Number(its[0].qty) > 0 && (Number(its[0].amount) || Number(p.total)) > 0)
+    t += '<br>≈ ฿' + ((Number(its[0].amount) || Number(p.total)) / Number(its[0].qty)).toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' ต่อ' + (its[0].unit || 'หน่วย');
+  return t;
 }
 /* ---- รอบทำจ่าย: (วันรับของ หรือวันนี้) + เครดิตของผู้จำหน่าย → พุธที่ตรงหรือถัดไป ---- */
 const TH_DAY = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
@@ -575,7 +635,12 @@ function poRowError(p, i) {
     if (!p.noJob && (!jobs.length || jobs.some(j => !re.test(j)))) return tag + 'เลขงาน: ตัวอักษร 3 + ตัวเลข 9 หลัก หรือติ๊ก ยังไม่มีเลขงาน';
   } else if (!p.descKey) return tag + 'เลือกแผนกและ Desc Key';
   else if (p.descKey === CUSTOM && !String(p.descCustom || '').trim()) return tag + 'พิมพ์ Desc Key';
-  if (String(p.what || '').trim().length < 2) return tag + 'ใส่ว่าสั่งอะไร';
+  const its = cleanIts(p);
+  if (!its.length) return tag + 'ใส่รายการของอย่างน้อย 1 แถว';
+  for (const it of its) {
+    if (!String(it.name).trim()) return tag + 'รายการของ: ใส่ชื่อของทุกแถว (หรือลบแถวที่ว่าง)';
+    if (!(Number(it.qty) > 0) && !(Number(it.amount) > 0)) return tag + '"' + it.name.trim() + '": ใส่จำนวน หรือ ยอด อย่างใดอย่างหนึ่ง';
+  }
   if (p.link && !/^https:\/\/share\.flowaccount\.com\/[\w\/.-]+$/.test(p.link.trim())) return tag + 'ลิงก์ PO ต้องเป็นลิงก์แชร์ของ FlowAccount';
   if (!String(p.supplier || '').trim()) return tag + 'ใส่ผู้จำหน่าย';
   if (!(Number(p.total) > 0)) return tag + 'ใส่ยอดรวม';
@@ -666,7 +731,9 @@ async function submitForm() {
     ? Object.assign(base, { action: 'submitPR', items: prType === 'sourcing' ? [] : items.map(it => ({ name: it.name.trim(), qty: Number(it.qty), unit: it.unit.trim() })), needBy: $('needBy').value, assignee: $('assignee').value, urgency,
         prType, need: prType === 'sourcing' ? $('need').value.trim() : '', budget: prType === 'sourcing' ? Number($('budget').value) || '' : '' })
     : { action: 'submitPO', note: $('note').value.trim(),
-        pos: pos.map(p => Object.assign(poHeader(p), { prId: p.prId, poNumber: p.poNumber, purpose: p.purpose, supplier: String(p.supplier).trim(), totalThb: Number(p.total), dueDate: p.pay === 'urgent' ? '' : p.due, recvDate: p.recv || '', qtRef: p.noQT ? 'ไม่มี' : String(p.qt || '').trim(), payMode: p.pay, poLink: String(p.link || '').trim(), approver: p.approver, itemDesc: String(p.what || '').trim(), replaces: editRef || undefined })) };
+        pos: pos.map(p => Object.assign(poHeader(p), { prId: p.prId, poNumber: p.poNumber, purpose: p.purpose, supplier: String(p.supplier).trim(), totalThb: Number(p.total), dueDate: p.pay === 'urgent' ? '' : p.due, recvDate: p.recv || '', qtRef: p.noQT ? 'ไม่มี' : String(p.qt || '').trim(), payMode: p.pay, poLink: String(p.link || '').trim(), approver: p.approver,
+          items: cleanIts(p).map(it => ({ name: String(it.name).trim(), qty: it.qty === '' ? '' : Number(it.qty), unit: String(it.unit || '').trim(), amount: it.amount === '' ? '' : Number(it.amount) })),
+          replaces: editRef || undefined })) };
   payload.submitId = submitId;
   const label = $('submitBtn').textContent;
   $('submitBtn').disabled = true; $('submitBtn').textContent = 'กำลังส่ง…';
@@ -685,6 +752,75 @@ async function submitForm() {
     $('formErr').textContent = 'ส่งไม่สำเร็จ: ' + e.message;
     $('submitBtn').disabled = false; $('submitBtn').textContent = label;
   }
+}
+function again() { if (kind === 'po') openPO(); else if (kind === 'pay') openPay(); else openPR(); }
+/* ---- หน้าทำจ่าย: จ่ายทีละใบ + แนบลิงก์เอกสารจ่าย → ส่งสรุปรอบเข้ากลุ่ม ---- */
+let payItems = [], payRound = '', paidNow = [], payFocus = '';
+const baht2 = n => '฿' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+async function openPay(focus) {
+  kind = 'pay'; payFocus = focus || ''; show('vPay'); $('payErr').textContent = '';
+  $('payList').innerHTML = '<div class="sk"></div><div class="sk"></div>';
+  try {
+    const r = await api({ action: 'payList' });
+    if (!r.ok) throw new Error(r.error);
+    payItems = r.items; $('payTitle').textContent = 'ทำจ่าย · รอบ ' + thd(r.wd);
+    $('payWho').textContent = r.canPay ? 'กดจ่ายทีละใบ แนบลิงก์เอกสารจ่ายได้ (ไม่บังคับ) · เสร็จแล้วกด "ส่งสรุป"' : 'ดูได้อย่างเดียว · กดจ่ายได้เฉพาะผู้มีสิทธิ์จ่าย';
+    try { const s = JSON.parse(ls.get('po_payround') || 'null'); if (s && s.day === isoToday()) { payRound = s.round; paidNow = s.paid || []; } } catch (e) {}
+    renderPay(r.canPay);
+  } catch (e) { $('payList').innerHTML = '<div class="err">' + esc(e.message) + '</div>'; }
+}
+function renderPay(canPay) {
+  const G = [['late', 'เลยกำหนด', 1], ['urgent', 'ด่วน', 1], ['round', 'ถึงรอบนี้'], ['later', 'รอบถัดไป'], ['hold', 'ยังไม่ต้องจ่าย']];
+  let html = '';
+  G.forEach(([g, th, red]) => {
+    const a = payItems.filter(x => x.group === g); if (!a.length) return;
+    html += '<div class="pgh' + (red ? ' red' : '') + '">' + th + ' · ' + a.length + ' ใบ · ' + baht2(a.reduce((t, x) => t + x.totalThb, 0)) + '</div>';
+    a.forEach(x => {
+      const i = payItems.indexOf(x), done = paidNow.some(p => p.poNumber === x.poNumber);
+      html += '<div class="pay' + (done ? ' done' : '') + (x.poNumber === payFocus ? ' hl' : '') + '" id="pay' + i + '"><div class="top2"><b>' + esc(x.supplier) + '</b><span class="amt">' + baht2(x.totalThb) + '</span></div>' +
+        '<div class="s">' + esc(x.itemDesc || '') + '</div><div class="s">' + esc(x.poNumber) + (x.dueDate ? ' · กำหนด ' + thd(x.dueDate) : '') + ' · ผู้ขอ ' + esc(x.requester) +
+        (x.poLink ? ' · <a href="' + esc(x.poLink) + '" target="_blank" style="color:#0089B3">ดู PO</a>' : '') + '</div>' +
+        (done ? '<div style="margin-top:6px;font-weight:600;color:#2E7D32">✓ จ่ายแล้ว</div>' : canPay ?
+          '<input id="pl' + i + '" type="url" inputmode="url" placeholder="ลิงก์เอกสารจ่าย FlowAccount (ไม่บังคับ)">' +
+          '<div class="s" style="margin-top:8px">ยอดจ่ายจริง (บาท) · แก้ได้ถ้ามีหักภาษี / ค่าโอน</div><input id="pa' + i + '" type="number" step="0.01" inputmode="decimal" value="' + x.totalThb + '" style="margin-top:2px">' +
+          '<button class="go" id="pb' + i + '" onclick="payOne(' + i + ')">จ่ายแล้ว</button><div class="err" id="pe' + i + '"></div>' : '') + '</div>';
+    });
+  });
+  $('payList').innerHTML = html || '<div class="who" style="font-size:15px;margin-top:14px">ไม่มี PO รอจ่าย ✓</div>';
+  updPayBar();
+  const f = payItems.findIndex(x => x.poNumber === payFocus); if (f >= 0) setTimeout(() => $('pay' + f).scrollIntoView({ block: 'center' }), 50);
+}
+function updPayBar() {
+  $('payBar').classList.toggle('hidden', !paidNow.length);
+  $('payBtn').textContent = 'เสร็จแล้ว ส่งสรุป (' + paidNow.length + ' ใบ · ' + baht2(paidNow.reduce((t, p) => t + p.amt, 0)) + ')';
+}
+async function payOne(i) {
+  const x = payItems[i], b = $('pb' + i), link = $('pl' + i).value.trim(), amt = Number($('pa' + i).value);
+  $('pe' + i).textContent = '';
+  if (link && !/^https:\/\/share\.flowaccount\.com\/[\w\/.-]+$/.test(link)) return $('pe' + i).textContent = 'ลิงก์ต้องเป็นลิงก์แชร์ของ FlowAccount (https://share.flowaccount.com/...)';
+  if (!(amt > 0)) return $('pe' + i).textContent = 'ใส่ยอดจ่ายจริง';
+  if (!b.classList.contains('cf')) { b.classList.add('cf'); b.textContent = 'ยืนยันจ่าย ' + baht2(amt) + ' ?'; return; }   // กดซ้ำเพื่อยืนยัน กันกดพลาด
+  b.disabled = true; b.textContent = 'กำลังบันทึก…';
+  try {
+    const r = await api({ action: 'markPaid', poNumber: x.poNumber, batchId: x.batchId, link, amount: amt, round: payRound, submitId: newId() });
+    if (!r.ok) throw new Error(r.error);
+    payRound = r.round; paidNow.push({ poNumber: x.poNumber, amt });
+    ls.set('po_payround', JSON.stringify({ day: isoToday(), round: payRound, paid: paidNow }));
+    const card = $('pay' + i); card.classList.add('done');
+    card.querySelectorAll('input,.go,.err').forEach(e => e.remove());
+    card.insertAdjacentHTML('beforeend', '<div style="margin-top:6px;font-weight:600;color:#2E7D32">✓ จ่ายแล้ว · ' + baht2(amt) + (link ? ' · แนบเอกสารแล้ว' : '') + '</div>');
+    updPayBar();
+  } catch (e) { b.disabled = false; b.classList.remove('cf'); b.textContent = 'จ่ายแล้ว'; $('pe' + i).textContent = e.message; }
+}
+async function sendPaySummary() {
+  if (!payRound || !paidNow.length) return;
+  const t = '#จ่ายแล้ว ' + payRound + ' · ' + paidNow.length + ' ใบ · ' + baht2(paidNow.reduce((a, p) => a + p.amt, 0));
+  const posted = await postToGroup(t);
+  $('doneMsg').innerHTML = 'รอบ <b>' + esc(payRound) + '</b> · จ่ายแล้ว ' + paidNow.length + ' ใบ · ' + baht2(paidNow.reduce((a, p) => a + p.amt, 0)) + (posted ? '<br>สรุปจะขึ้นในกลุ่มจัดซื้อ' : '');
+  showPaste(posted ? '' : t);
+  payRound = ''; paidNow = []; ls.set('po_payround', '');
+  show('vDone');
+  if (posted && !DEMO && liff.isInClient()) setTimeout(() => liff.closeWindow(), 1500);
 }
 /* ส่งเข้ากลุ่มไม่ได้ (เปิดบนคอม/นอกกลุ่ม) → คัดลอกให้อัตโนมัติ + ปุ่มคัดลอกตัวใหญ่ */
 let pasteText = '';
@@ -811,7 +947,7 @@ const DEMO_REPORT = { month: '2026-11', months: ['2026-11', '2026-10'], generate
   toPayList: [{ po: 'PO202611020003', supplier: 'บริษัท ทีเอส นิตติ้ง จำกัด', amount: 9800, due: '2026-11-05', overdue: true }, { po: 'PO202611030009', supplier: 'ร้าน Top', amount: 5800, due: '2026-11-08', overdue: true }, { po: 'PO202611070002', supplier: 'บริษัท ที คัลเจอร์ จำกัด', amount: 42600, due: '2026-11-11', overdue: false }],
   prList: [{ pr: 'PR-0012', requester: 'คิตตี้', assignee: 'ทราย-จัดซื้อ', status: 'รอเปิด PO', days: 4, needBy: '2026-11-12', item: 'ถุงผ้าแจกงานอีเวนต์' }, { pr: 'PR-0014', requester: 'ข้าวฟ่าง', assignee: 'ทราย-จัดซื้อ', status: 'รอรับเรื่อง', days: 0, needBy: '2026-11-20', item: 'แคตตาล็อก 2027' }] };
 function demoApi(body) {
-  const D = window.DEMO_DATA || { user: { name: 'ทราย-จัดซื้อ', team: 'Production Team', canPR: true, canPO: true, canReport: true },
+  const D = window.DEMO_DATA || { user: { name: 'ทราย-จัดซื้อ', team: 'Production Team', canPR: true, canPO: true, canReport: true, canPay: true },
     unregistered: [], suppliers: ['บริษัท ควอลิตี้ ลาเบล จำกัด', 'ร้าน Sayi'],
     keys: { 'E-commerce': [['PR', 'OPEX']], 'HR&Admin': [['ค่าเครื่องเขียน วัสดุ', 'OPEX']] },
     approvers: ['มุก', 'วิ้งค์', 'ข้าวฟ่าง', 'มะปราง', 'แพรว', 'พลอยใส', 'ตั๊ะ'], selfApprovers: ['วิ้งค์', 'แพรว'],
@@ -826,6 +962,13 @@ function demoApi(body) {
     { ref: 'PR-0012', text: 'PR-0012 · กำลังดำเนินการ (ของ คิตตี้)', sub: 'ถุงผ้าแจกงานอีเวนต์', open: true, posted: true },
     { ref: 'PO202611090004', text: 'PO202611090004 · รออนุมัติ · ฿5,350.00', sub: 'บริษัท ควอลิตี้ ลาเบล จำกัด · ป้ายผ้า', open: true, posted: false },
     { ref: 'PO202611070002', text: 'PO202611070002 · จ่ายแล้ว · ฿42,600.00', sub: 'บริษัท ที คัลเจอร์ จำกัด', open: false, posted: true }] });
+  if (body.action === 'payList') return Promise.resolve({ ok: true, canPay: true, wd: '2026-11-18', items: [
+    { group: 'late', poNumber: 'PO202611050003', batchId: 'B-0001', supplier: 'ไทยแพ็ค', itemDesc: 'กล่อง 500 ใบ', totalThb: 6200, dueDate: '2026-11-11', requester: 'มะปราง', poLink: '' },
+    { group: 'urgent', poNumber: 'PO202611110011', batchId: 'B-0004', supplier: 'Sayi', itemDesc: 'ถุงผ้า 200 ใบ', totalThb: 1000, dueDate: '2026-11-12', requester: 'ทราย', poLink: '' },
+    { group: 'round', poNumber: 'PO202611090004', batchId: 'B-0002', supplier: 'บริษัท ควอลิตี้ ลาเบล จำกัด', itemDesc: 'ป้ายผ้า 2,000 ชิ้น', totalThb: 5350, dueDate: '2026-11-18', requester: 'คิตตี้', poLink: 'https://share.flowaccount.com/po/x' },
+    { group: 'round', poNumber: 'PO202611090007', batchId: 'B-0003', supplier: 'บริษัท ที คัลเจอร์ จำกัด', itemDesc: 'Cotton 20 OE 50 กก.', totalThb: 27500, dueDate: '2026-11-18', requester: 'วิ้งค์', poLink: '' },
+    { group: 'hold', poNumber: 'PO202611110014', batchId: 'B-0005', supplier: 'หมึกทอง', itemDesc: 'หมึก', totalThb: 1500, dueDate: '', requester: 'คิตตี้', poLink: '' }] });
+  if (body.action === 'markPaid') return Promise.resolve({ ok: true, round: body.round || 'P-0007' });
   if (body.action === 'history') return Promise.resolve({ ok: true, ref: body.ref, rows: [
     { at: '9/11 10:02', by: 'คิตตี้', action: 'เปิด PR', to: 'รอจัดซื้อรับเรื่อง', note: 'สั่งของ' },
     { at: '9/11 10:15', by: 'ทราย-จัดซื้อ', action: 'รับเรื่อง', to: 'กำลังดำเนินการ', note: '' },
