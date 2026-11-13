@@ -403,6 +403,7 @@ function openPR() {
   $('supLabel').textContent = 'ผู้จำหน่าย (ถ้ารู้ / มีร้านในใจ)';
   $('prTypeBox').classList.remove('hidden'); setPrType('spec');
   const a = $('assignee'); a.innerHTML = '<option value="">จัดซื้อคนไหนก็ได้</option>'; M.poMains.forEach(n => a.add(new Option(n, n)));
+  if (M.settings.defaultOwner && M.poMains.indexOf(M.settings.defaultOwner) >= 0) a.value = M.settings.defaultOwner;   // ค่าเริ่มต้น: Settings default_po_owner
   $('submitBtn').textContent = 'ส่งคำขอซื้อเข้ากลุ่ม';
   renderItems(); setPurpose('order'); show('vForm');
 }
@@ -471,9 +472,10 @@ async function cancelPO() {
 function addPO() { if (pos.length >= 16) { $('formErr').textContent = 'ส่งได้ครั้งละไม่เกิน 16 ใบ ส่วนที่เหลือส่งรอบถัดไป'; return; } pos.push(newPO(pos[pos.length - 1])); autoDue(pos[pos.length - 1]); renderPOs(); }
 function applyPR(p, prId) {
   const pr = M.openPRs.find(x => x.prId === prId); p.prId = pr ? prId : '';
-  p.editProj = false;
+  p.editProj = false; p.fa = !!(pr && pr.faNo); p.faMsg = ''; p.faErr = false;
   if (!pr) return;
   p.purpose = pr.purpose; p.supplier = pr.supplier || p.supplier;
+  if (p.fa) { p.poNumber = pr.faNo; if (pr.faLink) p.link = pr.faLink; faPull(p); }   // PR ที่ระบบเปิด PO ใน FlowAccount ให้แล้ว → ดึงผู้ขาย/รายการ/ยอด มาเติม
   if (pr.items && pr.items.length && !cleanIts(p).length) p.items = pr.items.map(newIt);   // ดึงรายการของจาก PR (แก้/เติมยอดต่อได้)
   if (pr.purpose === 'order') {
     p.lineName = String(pr.project).replace(/^line@/, '');
@@ -483,6 +485,19 @@ function applyPR(p, prId) {
     const known = (M.keys[p.dept] || []).some(([d]) => p.dept + '|' + d === pr.budgetKey);
     p.descKey = known ? pr.budgetKey : CUSTOM; p.descCustom = known ? '' : String(pr.budgetKey).split('|').slice(1).join('|');
   }
+}
+/* ดึงข้อมูล PO ล่าสุดจาก FlowAccount (ผู้ขาย รายการ ยอดรวม) — ตอนส่ง ระบบจะดึงซ้ำและใช้ค่าจาก FlowAccount เป็นหลัก */
+async function faPull(p) {
+  const id = p.prId; p.faMsg = 'กำลังดึงข้อมูลจาก FlowAccount…'; p.faErr = false;
+  try {
+    const r = await api({ action: 'faPull', prId: id }); if (p.prId !== id) return;
+    if (!r.ok) throw new Error(r.error || 'ดึงข้อมูลไม่ได้');
+    const d = r.po; p.poNumber = d.poNumber || p.poNumber; p.supplier = d.supplier || p.supplier; p.total = d.total ? String(d.total) : ''; if (d.link) p.link = d.link;
+    if (d.items && d.items.length) p.items = d.items.map(newIt);
+    p.faMsg = 'ดึงจาก FlowAccount เมื่อ ' + d.at + (d.total ? ' · ก่อน VAT ' + baht2(d.subTotal) + ' · VAT ' + baht2(d.vat) : ' · ยังไม่มีราคา ใส่ราคาใน FlowAccount ก่อน');
+    p.faErr = !d.total; autoDue(p);
+  } catch (e) { if (p.prId !== id) return; p.faErr = true; p.faMsg = e.message; }
+  if (kind === 'po' && pos.indexOf(p) >= 0) { renderPOs(); sumPOs(); }
 }
 function opt(v, label, sel) { return '<option value="' + esc(v) + '"' + (sel ? ' selected' : '') + '>' + esc(label) + '</option>'; }
 function renderPOs() {
@@ -498,7 +513,8 @@ function renderPOs() {
     d.innerHTML =
       '<div class="po-h">PO ใบที่ ' + (i + 1) + (pos.length > 1 ? '<button data-del>ลบใบนี้</button>' : '') + '</div>' +
       (editRef ? (p.prId ? '<div class="sugg">อ้างอิง ' + esc(p.prId) + '</div>' : '') : '<label>อ้างอิงคำขอซื้อ (ถ้ามี)</label><select data-f="prId">' + prOpts + '</select>') +
-      '<label>เลข PO <span class="req">*</span></label><input data-f="poNumber" placeholder="PO202611090004" autocapitalize="characters">' +
+      '<label>เลข PO <span class="req">*</span></label><input data-f="poNumber" placeholder="PO202611090004" autocapitalize="characters"' + (p.fa ? ' readonly' : '') + '>' +
+      (p.fa ? '<div class="sugg"' + (p.faErr ? ' style="color:#B3261E"' : '') + '>' + esc(p.faMsg || 'เลขจาก FlowAccount') + ' <a data-fapull style="color:#0089B3;cursor:pointer;margin-left:6px">ดึงข้อมูลล่าสุด</a></div>' : '') +
       '<label>ลิงก์ PO จาก FlowAccount <span style="color:var(--muted);font-weight:400">(แนะนำ แทนการส่งรูป)</span></label><input data-f="link" type="url" inputmode="url" placeholder="https://share.flowaccount.com/po/...">' +
       '<div class="sugg">FlowAccount → เปิด PO → แชร์ → คัดลอกลิงก์ · ผู้อนุมัติกดดูเอกสารจากการ์ดได้เลย</div>' +
       (fromPR ? '<div class="sum" style="display:block;line-height:1.6"><div style="font-size:12px;color:var(--muted)">ดึงจาก ' + esc(p.prId) + ' <a data-edit style="color:#0089B3;cursor:pointer;margin-left:6px">แก้</a></div>' +
@@ -556,6 +572,7 @@ function renderPOs() {
     const ia = d.querySelector('[data-itadd]'); if (ia) ia.onclick = () => { if (p.items.length >= 20) return; p.items.push(newIt()); renderPOs(); };
     d.addEventListener('click', e => { if (e.target.hasAttribute('data-usesum')) { p.total = String(itSum(p)); renderPOs(); } });
     d.querySelectorAll('[data-p]').forEach(bt => bt.onclick = () => { p.purpose = bt.dataset.p; renderPOs(); });
+    const fp = d.querySelector('[data-fapull]'); if (fp) fp.onclick = () => { faPull(p); renderPOs(); };
     const ed = d.querySelector('[data-edit]'); if (ed) ed.onclick = () => { p.editProj = true; renderPOs(); };
     d.querySelectorAll('[data-pay]').forEach(bt => bt.onclick = () => { p.pay = bt.dataset.pay; autoDue(p); renderPOs(); });
     d.addEventListener('click', e => {           // ลิงก์ในบรรทัดรอบชำระ (สร้างใหม่ทุกครั้งที่เปลี่ยนผู้จำหน่าย)
@@ -634,7 +651,7 @@ function poHeader(p) {
 }
 function poRowError(p, i) {
   const tag = pos.length > 1 ? 'ใบที่ ' + (i + 1) + ': ' : '';
-  if (!new RegExp(M.settings.poPattern).test(p.poNumber || '')) return tag + 'เลข PO เช่น PO202611090004';
+  if (!p.fa && !new RegExp(M.settings.poPattern).test(p.poNumber || '')) return tag + 'เลข PO เช่น PO202611090004';
   if (pos.some((q, j) => j < i && q.poNumber === p.poNumber)) return tag + 'เลข PO ซ้ำกับใบก่อนหน้า';
   if (p.purpose === 'order') {
     if (!String(p.lineName || '').trim()) return tag + 'ใส่ชื่อไลน์ลูกค้า';
@@ -870,11 +887,16 @@ async function postToGroup(text) {
   if (window.SIM_POST) return window.SIM_POST(text);
   if (DEMO) return true;
   const msg = [{ type: 'text', text }];
+  // 1) เปิดจากกลุ่ม + มีสิทธิ์ chat_message.write → ส่งเข้ากลุ่มเลย
+  // 2) ปิดสิทธิ์นั้นไว้ (เพื่อให้ย่อหน้าต่างได้) / เปิดนอกกลุ่ม → หน้าต่างเลือกกลุ่มของ LINE (shareTargetPicker)
+  // 3) ไม่ได้ทั้งคู่ → คัดลอกให้วางเอง
   try {
-    const ctx = liff.getContext();
-    if (ctx && ctx.type === 'group') { await liff.sendMessages(msg); return true; }
-    if (liff.isApiAvailable('shareTargetPicker')) { const r = await liff.shareTargetPicker(msg); return !!r; }
-  } catch (e) { console.warn(e); }
+    const ctx = liff.getContext(), scope = (ctx && ctx.scope) || [];
+    if (ctx && ctx.type === 'group' && scope.indexOf('chat_message.write') >= 0) { await liff.sendMessages(msg); return true; }
+  } catch (e) { console.warn('sendMessages', e); }
+  try {
+    if (liff.isApiAvailable('shareTargetPicker')) { const r = await liff.shareTargetPicker(msg, { isMultiple: false }); return !!r; }
+  } catch (e) { console.warn('shareTargetPicker', e); }
   return false;
 }
 
